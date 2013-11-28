@@ -1,0 +1,23 @@
+gravityring: 0.1
+definitions:
+    mass:
+        big: 1000
+        small: 10
+    distance:
+        big: 200
+        small: 300
+solarsystem:
+    1_solar:
+        mass: "mass.big"
+        position: "center"
+        radius: 20
+    2_planet:
+        mass: "1_solar.mass * 2"
+        position: "1_solar.position + 10"
+    3_planet:
+        mass: 220
+        position: (distance.big, 40)
+    # planet3:
+    #     mass: "planet2.mass + mass.big"
+    #     postion: "solar.postion.x + 21", "solar.postion.y"
+
