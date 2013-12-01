@@ -34,14 +34,39 @@ class Force(Widget):
         with canvas:
             Line(pos=[self.endpos, startpos], widht=5)
 
+class SpaceObjectBase(object):
+
+    def __init__(self):
+        self.pos = (0, 0)
+        self.velocity = (0, 0)
+        self.mass = None
+        self.radius = None
+
+    @property
+    def x(self):
+        return self.pos[0]
+    @x.setter
+    def x(self, value):
+        self.pos[0] = value
+    @property
+    def y(self):
+        return self.pos[1]
+    @y.setter
+    def y(self, value):
+        self.pos[1] = value
+    def __repr__(self):
+        return "postion=%s velocity=%s mass=%s radius=%s" %(self.position, self.velocity, self.mass, self.radius)
+    def __str__(self):
+        return "postion=%s velocity=%s mass=%s radius=%s" %(self.position, self.velocity, self.mass, self.radius)
 
 
 
-class SpaceObject(object):
+class SpaceObject(SpaceObjectBase):
 
     objectcount = -1
     mergedforces = list()
     def __init__(self, pos, radius = 10, **kwargs):
+        super(SpaceObjectBase, self).__init__()
         self.spaceid = SpaceObject.objectcount + 1
         SpaceObject.objectcount += 1
         self.pos = list(pos)
@@ -57,18 +82,6 @@ class SpaceObject(object):
         self.velocity = ReferenceListProperty(self.velocity_x, self.velocity_y)
         self.merged = False
         # Widget.__init__(self, **kwargs)
-    @property
-    def x(self):
-        return self.pos[0]
-    @x.setter
-    def x(self, value):
-        self.pos[0] = value
-    @property
-    def y(self):
-        return self.pos[1]
-    @y.setter
-    def y(self, value):
-        self.pos[1] = value
     def interactions(self, other):
         """ Returns force, distance betwen two objects"""
         distancex = self.x - other.x
