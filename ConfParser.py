@@ -1,5 +1,11 @@
+# import pycallgraph TODO
 import yaml
 import re
+from collections import OrderedDict
+import yaml.constructor
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Singleton(type):
     _instances = {}
@@ -7,15 +13,53 @@ class Singleton(type):
         if cls not in cls._instances:
             cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
+
+
+class OrderedDictYAMLLoader(yaml.Loader):
+    """
+    A YAML loader that loads mappings into ordered dictionaries.
+    """
+
+    def __init__(self, *args, **kwargs):
+        yaml.Loader.__init__(self, *args, **kwargs)
+
+        self.add_constructor(u'tag:yaml.org,2002:map', type(self).construct_yaml_map)
+        self.add_constructor(u'tag:yaml.org,2002:omap', type(self).construct_yaml_map)
+
+    def construct_yaml_map(self, node):
+        data = OrderedDict()
+        yield data
+        value = self.construct_mapping(node)
+        data.update(value)
+
+    def construct_mapping(self, node, deep=False):
+        if isinstance(node, yaml.MappingNode):
+            self.flatten_mapping(node)
+        else:
+            raise yaml.constructor.ConstructorError(None, None,
+                'expected a mapping node, but found %s' % node.id, node.start_mark)
+
+        mapping = OrderedDict()
+        for key_node, value_node in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            try:
+                hash(key)
+            except TypeError, exc:
+                raise yaml.constructor.ConstructorError('while constructing a mapping',
+                    node.start_mark, 'found unacceptable key (%s)' % exc, key_node.start_mark)
+            value = self.construct_object(value_node, deep=deep)
+            mapping[key] = value
+        return mapping
+
 class Config(object):
     __metaclass__ = Singleton
     def __init__(self, filename):
-        self.data = {}
+        self.data = OrderedDict()
         self.load(filename)
 
     def load(self, filename):
         filehandler = open(filename)
-        self.data = yaml.load(filehandler)
+        self.data = yaml.load(filehandler, Loader = OrderedDictYAMLLoader)
         filehandler.close()
 
     def get(self, key):
@@ -33,13 +77,9 @@ class Definitions(object):
 
         self.value = values
         self.name = name
-# class ResolverMath(object):
-    # OPERATORS = {'+':lambda x, y:x+y, '-':lambda x, y:x*y, '*': lambda x,y:x*y}
-    #Associativity constants for operators
 LEFT_ASSOC = 0
 RIGHT_ASSOC = 1
 
-#Supported operators
 OPERATORS = {
 '+' : (0, LEFT_ASSOC),
 '-' : (0, LEFT_ASSOC),
@@ -49,53 +89,40 @@ OPERATORS = {
 '^' : (10, RIGHT_ASSOC)
 }
 
-#Test if a certain token is operator
 def isOperator(token):
     return token in OPERATORS.keys()
 
-#Test the associativity type of a certain token
 def isAssociative(token, assoc):
     if not isOperator(token):
         raise ValueError('Invalid token: %s' % token)
     return OPERATORS[token][1] == assoc
 
-#Compare the precedence of two tokens
 def cmpPrecedence(token1, token2):
     if not isOperator(token1) or not isOperator(token2):
         raise ValueError('Invalid tokens: %s %s' % (token1, token2))
     return OPERATORS[token1][0] - OPERATORS[token2][0]
 
-#Transforms an infix expression to RPN
 def infixToRPN(tokens):
     out = []
     stack = []
-    #For all the input tokens [S1] read the next token [S2]
-    print("tokens %s"%tokens)
 
     for token in tokens:
         if isOperator(token):
-        # If token is an operator (x) [S3]
             while len(stack) != 0 and isOperator(stack[-1]):
-                # [S4]
                 if (isAssociative(token, LEFT_ASSOC) and cmpPrecedence(token, stack[-1]) <= 0)  or (isAssociative(token, RIGHT_ASSOC)  and cmpPrecedence(token, stack[-1]) < 0):
-                # [S5] [S6]
                     out.append(stack.pop())
                     continue
                 break
-            # [S7]
             stack.append(token)
         elif token == '(':
-            stack.append(token) # [S8]
+            stack.append(token)
         elif token == ')':
-            # [S9]
             while len(stack) != 0 and stack[-1] != '(':
-                out.append(stack.pop()) # [S10]
-            stack.pop() # [S11]
+                out.append(stack.pop())
+            stack.pop()
         else:
-            print("token %s"%token)
-            out.append(token) # [S12]
+            out.append(token)
     while len(stack) != 0:
-            # [S13]
         out.append(stack.pop())
     return out
 
@@ -121,6 +148,7 @@ class SpaceObjectBase(object):
         return "postion=%s velocity=%s mass=%s radius=%s" %(self.position, self.velocity, self.mass, self.radius)
     def __str__(self):
         return "postion=%s velocity=%s mass=%s radius=%s" %(self.position, self.velocity, self.mass, self.radius)
+
 class ConfigParser(object):
     """Docstring for ConfigParser """
     DEFINITIONSKEY = {'mass':'mass', 'position':'distance', "velocity":'velocity'}
@@ -134,26 +162,21 @@ class ConfigParser(object):
         self.solarsystemconf = self.config.get_solarsystem()
         self.definitions['position'] = {}
         self.definitions['position']['center'] = (0,0)
-        print self.definitions
         self.system = dict()
-    def parse_definitions(self):
-       pass
-    def parse_solarsystem(self):
-        print"solar syste %s" %self.solarsystemconf
+    
+    def parse(self):
         for name, spaceobjectconf in self.solarsystemconf.iteritems():
             spaceobj = SpaceObjectBase()
             for attr in spaceobjectconf.keys():
                 if attr in ConfigParser.ATTRIBUTESKEY:
                     value = spaceobjectconf[attr]
-                    print "test %s"%value
+                    logger.debug("value  %s" %value)
                     if isinstance(value, str):
-                        print "value "+value
                         if value in self.definitions[ConfigParser.DEFINITIONSKEY[attr]]:
                             tmpvalue = self.definitions[ConfigParser.DEFINITIONSKEY[attr]][value]
                         elif value in self.definitions[attr]:
                             tmpvalue = self.definitions[attr][value]
                         else:
-                            #TODO: resolev
                             if re.match("\(.+?\,\s.+\)", value):
                                 regex = re.search("\((?P<x>.+?)\,\s?(?P<y>.+?)\)", value)
                                 tmpvalue = []
@@ -169,13 +192,13 @@ class ConfigParser(object):
                             return
                     setattr(spaceobj, attr, tmpvalue)
             self.system[name] = spaceobj
-            print "System = %s"%self.system
+            logger.debug("System = %s"%self.system)
     def resovle(self, stringeq):
         stringeq = stringeq.split(" ")
-        print "eq %s" %stringeq
+        logger.debug("after split  %s" %stringeq)
         string = infixToRPN(stringeq)
 
-        print "string %s" %string
+        logger.debug("After RPN string %s" %string)
         stack =  []
         for item in string:
             if re.match("\w+\.\w+", item):
@@ -187,7 +210,7 @@ class ConfigParser(object):
                     if item[0] in ConfigParser.DEFINITIONSKEY.values():
                         item = self.definitions[item[0]][item[1]]
                 stack.append(item)
-                print("stack %s" %stack)
+                logger.debug("stack %s" %stack)
             elif item in ConfigParser.OPERATORS:
                 try:
                     value1 = stack.pop()
@@ -209,7 +232,7 @@ class ConfigParser(object):
                 stack.append(item)
         return stack.pop()
 if __name__ == '__main__':
-    print Config("config.yml"), Config("config.yml")
-    # conf = ConfigParser('config.yml')
-    # conf.parse_definitions()
+    conf = ConfigParser('config.yml')
+    conf.parse()
+    print("System: %s" % conf.system)
     # conf.parse_solarsystem()

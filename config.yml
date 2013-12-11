@@ -1,4 +1,7 @@
-gravityring: 0.1
+gravityring: 0.1.1 
+numericmethod: "RungaKutta"
+gravitystrength: 0.0001
+density: 0.001
 definitions:
     mass:
         big: 1000
@@ -7,17 +10,17 @@ definitions:
         big: 200
         small: 300
 solarsystem:
-    1_solar:
+    solar:
         mass: "mass.big"
         position: "center"
         radius: 20
-    2_planet:
-        mass: "1_solar.mass * 2"
-        position: "1_solar.position + 10"
-    3_planet:
-        mass: 220
-        position: (distance.big, 40)
-    # planet3:
-    #     mass: "planet2.mass + mass.big"
-    #     postion: "solar.postion.x + 21", "solar.postion.y"
+    planet1:
+        mass: "solar.mass * 2"
+        position: "solar.position + 10"
+    planet2:
+        mass: "planet1.mass + 220"
+        position: (distance.big + 10, 40)
+    planet3:
+        mass: "planet2.mass + mass.big"
+        postion: "solar.postion.x + 21", "solar.postion.y"
 

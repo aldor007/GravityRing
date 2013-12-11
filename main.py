@@ -20,14 +20,17 @@ from kivy.clock import Clock
 from kivy.logger import Logger
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
+from simulation.conf import Config
+from simulation.numericmethods.rungakutta import RungaKutta
+from simulation.system.solarsystem import SolarSystem
+from simulation.system.solarsystem import SpaceObject
+from kivy.core.window import Window
 
 
-from libs.numericmethods.rungakutta import RungaKutta
-from libs.system.solarsystem import SolarSystem
-from libs.system.solarsystem import SpaceObject
+DENSITY = 0.001
 
-GRAVITYSTRENGTH = 1e10
-DENSITY = 0.01
+# The gravity coefficient - it's my universe, I can pick whatever I want :-)
+GRAVITYSTRENGTH = 10000000
 class LoadDialog(FloatLayout):
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
@@ -74,17 +77,32 @@ class Settings(Screen):
     def save(self, path, filename):
         with open(os.path.join(path, filename), 'w') as stream:
             stream.write(self.text_input.text)
-
+            
         self.dismiss_popup()
 
-class GravityRing(Screen):
+class Space(Widget):
     solarsystem = SolarSystem()
-    # def on_touch_down(self, touch):
-    #     color = (random(), random(), random())
-    #     newobject = SpaceObject(pos=(touch.x, touch.y))
-    #     newobject.draw(self.canvas)
-    #     self.spaceobjects.append(newobject)
-
+    def __init__(self, **kwargs):
+        super(Space, self).__init__(**kwargs)
+        self.width -= self.width/8
+        self.height -= self.height/8
+        self.start_space()
+    def start_space(self):
+        Clock.schedule_interval(self.draw, 1. / 30)
+        sun = SpaceObject(pos=(420, 220), radius=100)
+        # sun.mass = 14
+        sun.spaceid = 0
+        Space.solarsystem = SolarSystem()
+        Space.solarsystem.append(sun)
+        spaceob = SpaceObject(pos=(10,30), radius = 5)
+        spaceob1 = SpaceObject(pos=(20,60), radius = 5)
+        spaceob1.velocity_x = 3.0
+        spaceob1.velocity_y = 6.0
+        # spaceob.mass = 0.013
+        Space.solarsystem.append(spaceob)
+        Space.solarsystem.append(spaceob1)
+        # Space.solarsystem.append(SpaceObject(pos=(822,201),radius = 3))
+        # Space.solarsystem.append(SpaceObject(pos=(822,401),radius = 3))
     def on_touch_down(self, touch):
         touch.grab(self)
         self.radius = 1
@@ -111,32 +129,64 @@ class GravityRing(Screen):
             pass
 
     def update(self, dt):
-        self.solarsystem.update()
+        Space.solarsystem.update()
 
     def draw(self, dt):
-        for item in self.solarsystem:
-            item.draw(self.canvas)
+        zoom = 0.5
+        self.canvas.clear()
+        for item in Space.solarsystem.get_system():
+            item.draw(self.canvas, self.width, self.height, zoom)
 
-    def start_space(self):
-        pass
+    def stop_button_pressed(self):
+        Clock.unschedule(self.update)
+    def start_button_pressed(self):
+        Logger.info("START")
+        Clock.schedule_interval(self.update, 1./31)
+
         # self.solarsystem.append(SpaceObject(pos=(0, 0)))
         # self.solarsystem[0].center = self.center
         # self.solarsystem[0].velocity = Vector(4, 0).rotate(randint(0, 360))
+    def reset_button_pressed(self):
+        self.stop_button_pressed()
+        self.canvas.clear()
+        Space.solarsystem.clear()
+        self.start_space()
+class GravityRing(Screen):
+    solarsystem = SolarSystem()
+    def __init__(self, **kwargs):
+        super(GravityRing, self).__init__(**kwargs)
 
-
+        self.space = Space()
+        self.add_widget(self.space)
+    # def on_pre_enter(self):
+    def stop_button_pressed(self):
+        self.space.stop_button_pressed()
+    def start_button_pressed(self):
+        self.space.start_button_pressed()
+    def reset_button_pressed(self):
+        self.space.reset_button_pressed()
+    
 class GravityRingApp(App):
 
     def build(self):
+        from kivy.base import EventLoop
+        EventLoop.ensure_window()
+        self.window = EventLoop.window
         self.gravity = GravityRing(name='gravity')
-        self.gravity.start_space()
-        Clock.schedule_interval(self.gravity.draw, 1. / 50)
-        sm = ScreenManager()
-        sm.add_widget(Menu(name='menu'))
-        sm.add_widget(Settings(name='settings'))
-        sm.add_widget(self.gravity)
+        self.sm = ScreenManager()
+        self.sm.add_widget(Menu(name='menu'))
+        self.sm.add_widget(Settings(name='settings'))
+        self.sm.add_widget(self.gravity)
         # gravity.update(1)
         # Clock.schedule_interval(self.gravity.update, 1. / 60)
-        return sm
+        Window.bind(on_keyboard=self.hook_keyboard)
+        return self.sm
+
+    def hook_keyboard(self, window, key, *largs):
+        if key == 27: # BACK
+            self.sm.current = self.sm.previous()
+        elif key in (282, 319): # SETTINGS
+            self.sm.current = 'settings'
 
 if __name__ in ('__main__', '__android__'):
     GravityRingApp().run()

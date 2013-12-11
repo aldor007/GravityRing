@@ -14,6 +14,7 @@ import copy
 from random import randint
 from simulation.numericmethods.rungakutta import RungaKutta
 from simulation.numericmethods.euler import Euler
+from simulation.numericmethods.verletvelocity import VerletVerlocity
 from utils import Singleton
 
 GRAVITYSTRENGTH =  14
@@ -152,7 +153,7 @@ class SpaceObject(SpaceObjectBase):
             height = height / 2.
             tmpposx = width + self.x
             tmpposy = height +self.y 
-            Ellipse(pos=(zoom * self.x, self.y ), size=(zoom * self.radius,zoom * self.radius))
+            Ellipse(pos=( self.x, self.y ), size=(zoom * self.radius,zoom * self.radius))
 
     
     def merge(self, other):
