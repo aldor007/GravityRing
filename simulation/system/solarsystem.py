@@ -12,7 +12,7 @@ from kivy.logger import Logger
 import math
 import copy
 from random import randint
-from simulation.numericmethods.rungakutta import RungaKutta
+from simulation.numericmethods.rungekutta import RungeKutta
 from simulation.numericmethods.euler import Euler
 from simulation.numericmethods.verletvelocity import VerletVerlocity
 from utils import Singleton
@@ -191,7 +191,7 @@ class SolarSystem(object):
     def __init__(self, speed = 1):
         self.gravity = GRAVITYSTRENGTH
         self.system = list()
-        self.matmethod = RungaKutta()
+        self.matmethod = VerletVerlocity()
     def update(self):
         items_merged = list()
         tmp = list(self.system)

@@ -21,7 +21,6 @@ from kivy.logger import Logger
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from simulation.conf import Config
-from simulation.numericmethods.rungakutta import RungaKutta
 from simulation.system.solarsystem import SolarSystem
 from simulation.system.solarsystem import SpaceObject
 from kivy.core.window import Window
