@@ -11,21 +11,21 @@ class RungeKutta(NumericMethod):
         self.dt = 1.0
         self.system = list()
 
-    def calculate(self, system, dt=1.):
+    def calculate(self, system, dt=0.1):
         """Main function returning dict of new system"""
         self.system = system
         # self.updateAcceleration()
         new_system = list()
         for planet in self.system:
-            if planet.spaceid != 0:
+            # if planet.spaceid != 0:
                 # Logger.info(str(planet))
-                intermediate = self.intermediate(planet, 0, dt)
+            intermediate = self.intermediate(planet, 0, dt)
 
-                dervative = self.growth(*intermediate, dt=dt)
-                planet.pos[0] += dervative[0]*dt
-                planet.pos[1] += dervative[1]*dt
-                planet.velocity[0] += dervative[2]*dt
-                planet.velocity[1]+= dervative[3]*dt
+            dervative = self.growth(*intermediate, dt=dt)
+            planet.pos[0] += dervative[0]*dt
+            planet.pos[1] += dervative[1]*dt
+            planet.velocity[0] += dervative[2]*dt
+            planet.velocity[1]+= dervative[3]*dt
             new_system.append(planet)
         return new_system
 

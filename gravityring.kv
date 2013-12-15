@@ -22,10 +22,11 @@
             TextInput:
                 id: text_input
                 text: ''
-
-            RstDocument:
-                text: text_input.text
-                show_errors: True
+            Space:
+                index: 1000
+            # RstDocument:
+            #     text: text_input.text
+            #     show_errors: True
 
 <LoadDialog>:
     BoxLayout:
@@ -105,34 +106,48 @@
                 height: 20
             BoxLayout:
         BoxLayout:
+# <Space>:
+# 
+#     size: 50, 2.0
+#     # size_hint: app.window.width-app.window.width/8.1, app.window.height-app.window.height/2.0
+#     center_x: app.window.width/2
+#     id: spacewidget
 <GravityRing>:
     
 	pos: self.pos
 	size: app.window.size
-	
-    Space:
-        size: app.window.width-app.window.width/8.1, app.window.height-app.window.height/2.0
-        size_hint: app.window.width-app.window.width/8.1, app.window.height-app.window.height/2.0
-        center_x: app.window.width/2
-	Image:
-	    source: 'graphics/overlay.png'
-        allow_stretch: True
-        keep_ratio: False
+    # canvas.before:
+    #     Color:
+    #         rgba: 1, 1, 1, 1
+    #     Rectangle:
+    #         source: 'graphics/background.jpg'
+    #         # allow_stretch: True
+    #         # keep_ratio: False
+    #         size: app.window.size
+    BoxLayout:
+        # cols: 2 
+	    
         size: app.window.size
-	# 
-	# Image:
-        # source: 'graphics/rails.png'
-        # center_x: app.window.width/20
-        # size_hint: None, None
-        # height: app.window.height
-	
-
+        BoxLayout:
+        # size: app.window.width-app.window.width/2., app.window.height-app.window.height/2.0
+        Space:
+            # size_hint: app.window.width-app.window.width/2., app.window.height-app.window.height/2.0
+            id: spacewidget
+            size: 800, 200
+            center_x: app.window.width/2 + 20
+            center_y: app.window.height/2 + 20
+        BoxLayout:
+        BoxLayout:
+        BoxLayout:
+        BoxLayout:
+        BoxLayout:
+        BoxLayout:
         BoxLayout:
             orientation: 'vertical'
             spacing: 5
             padding: 10
 
-            size: app.window.width/8, app.window.height/2.0
+            size: 10. , 22
             right: app.window.width
             top: app.window.height
 
@@ -140,29 +155,47 @@
                 text: 'start'
                 bold: True
                 font_size: 17
-                # background_normal: 'graphics/button_normal.png'
-                # background_down: 'graphics/button_down.png'
+                size: 10. , 22
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
                 on_press: root.start_button_pressed()
 
             Button:
                 text: 'stop'
                 bold: True
                 font_size: 17
-                # background_normal: 'graphics/button_normal.png'
-                # background_down: 'graphics/button_down.png'
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
                 on_press: root.stop_button_pressed()
+                size: 10. , 22
             Button:
                 text: 'Reset'
                 bold: True
                 font_size: 17
-                # background_normal: 'graphics/button_normal.png'
-                # background_down: 'graphics/button_down.png'
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
                 on_press: root.reset_button_pressed()
+                size: 10. , 22
             ToggleButton:
                 text: 'Draw velocity'
                 id: velocity_switch
                 on_press: root.drawvelocity_button_pressed()
-	    
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
+                size: 10. , 22
+            BoxLayout:
+            BoxLayout:
+            BoxLayout:
+            BoxLayout:
+            BoxLayout:
+	# # # Image:
+                # size: 10, app.window.height/2.0
+        # source: 'graphics/rails.png'
+        # center_x: app.window.width/20
+        # size_hint: None, None
+        # height: app.window.height
+	
+
 		
 		
         #     Button:

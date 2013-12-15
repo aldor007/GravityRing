@@ -21,9 +21,13 @@ from kivy.logger import Logger
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from simulation.conf import Config
+from simulation.conf.configparser import ConfigParser
 from simulation.system.solarsystem import SolarSystem
 from simulation.system.solarsystem import SpaceObject
 from kivy.core.window import Window
+from kivy.factory import Factory
+
+
 
 
 DENSITY = 0.001
@@ -70,7 +74,10 @@ class Settings(Screen):
     def load(self, path, filename):
         with open(os.path.join(path, filename[0])) as stream:
             self.text_input.text = stream.read()
-
+            config = Config().loadfromstring(self.text_input.text)
+            parser = ConfigParser(config)
+            parser.parse()
+            Space.solarsystem.system = parser.system()
         self.dismiss_popup()
 
     def save(self, path, filename):
@@ -81,17 +88,18 @@ class Settings(Screen):
 
 class Space(Widget):
     solarsystem = SolarSystem()
-    def __init__(self, **kwargs):
-        super(Space, self).__init__(**kwargs)
-        self.width -= self.width/8
-        self.height -= self.height/8
-        self.start_space()
+    config = Config()
+    # def __init__(self, **kwargs):
+    #     super(Space, self).__init__(**kwargs)
+    #     self.width -= self.width/8
+    #     self.height -= self.height/8
+    #     self.start_space()
     def start_space(self):
-        Clock.schedule_interval(self.draw, 1. / 30)
+        Clock.schedule_interval(self.draw, 1. / 3)
         sun = SpaceObject(pos=(420, 220), radius=100)
         # sun.mass = 14
         sun.spaceid = 0
-        Space.solarsystem = SolarSystem()
+        # Space.solarsystem = SolarSystem()
         Space.solarsystem.append(sun)
         spaceob = SpaceObject(pos=(10,30), radius = 5)
         spaceob1 = SpaceObject(pos=(20,60), radius = 5)
@@ -103,29 +111,38 @@ class Space(Widget):
         # Space.solarsystem.append(SpaceObject(pos=(822,201),radius = 3))
         # Space.solarsystem.append(SpaceObject(pos=(822,401),radius = 3))
     def on_touch_down(self, touch):
-        touch.grab(self)
-        self.radius = 1
+        if self.collide_point(*touch.pos):
+            touch.grab(self)
+            Logger.info("Touch %s %s" % (self.width, self.height))
+            self.radius = 1
+            return True
+        return False
     def on_touch_move(self, touch):
-        if touch.grab_current is self:
-            dxy = 1
-            if touch.dx:
-                dxy = touch.dx
+        if self.collide_point(*touch.pos):
+            if touch.grab_current is self:
+                dxy = 1
+                if touch.dx:
+                    dxy = touch.dx
+                else:
+                    dxy = touch.dy
+                self.radius += dxy
+                Logger.info("AAATouchi3 %s %s" % (self.width, self.height))
+                return True
             else:
-                dxy = touch.dy
-            self.radius += dxy
-            # I received my grabbed touch
-        # else:
-        # it's a normal touch
-
+                pass
+        return False
     def on_touch_up(self, touch):
-        if touch.grab_current is self:
-        # I receive my grabbed touch, I must ungrab it!
-            newobject = SpaceObject(pos=(touch.x, touch.y), radius = self.radius)
-            self.solarsystem.append(newobject)
-            touch.ungrab(self)
-        else:
-        # it's a normal touch
-            pass
+        if self.collide_point(*touch.pos):
+            if touch.grab_current is self:
+                Logger.info("Touchi3 %s %s" % (self.width, self.height))
+            # I receive my grabbed touch, I must ungrab it!
+                newobject = SpaceObject(pos=(touch.x, touch.y), radius = self.radius)
+                Space.solarsystem.append(newobject)
+                touch.ungrab(self)
+            else:
+            # it's a normal touch
+                pass
+            return True
 
     def update(self, dt):
         Space.solarsystem.update()
@@ -133,14 +150,16 @@ class Space(Widget):
     def draw(self, dt):
         zoom = 0.5
         self.canvas.clear()
-        for item in Space.solarsystem.get_system():
-            item.draw(self.canvas, self.width, self.height, zoom)
+        with self.canvas:
+            for item in Space.solarsystem.get_system():
+                Logger.debug(" system %s " % str(item))
+                item.draw(self.canvas, self.width, self.height, zoom)
 
     def stop_button_pressed(self):
         Clock.unschedule(self.update)
     def start_button_pressed(self):
         Logger.info("START")
-        Clock.schedule_interval(self.update, 1./31)
+        Clock.schedule_interval(self.update, 1./3)
 
         # self.solarsystem.append(SpaceObject(pos=(0, 0)))
         # self.solarsystem[0].center = self.center
@@ -150,21 +169,29 @@ class Space(Widget):
         self.canvas.clear()
         Space.solarsystem.clear()
         self.start_space()
+
+Factory.register('Space', Space)
+
+
 class GravityRing(Screen):
     solarsystem = SolarSystem()
+    spacewidget = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(GravityRing, self).__init__(**kwargs)
 
-        self.space = Space()
-        self.add_widget(self.space)
+        self.spacewidget = Space(id="spacewidget")
+        self.spacewidget.width = self.width - self.width/8.
+        self.spacewidget.height = 55
+        Clock.schedule_interval(self.spacewidget.draw, 1. / 30)
+        self.add_widget(self.spacewidget, 500)
     # def on_pre_enter(self):
     def stop_button_pressed(self):
-        self.space.stop_button_pressed()
+        self.spacewidget.stop_button_pressed()
     def start_button_pressed(self):
-        self.space.start_button_pressed()
+        self.spacewidget.start_button_pressed()
     def reset_button_pressed(self):
-        self.space.reset_button_pressed()
-    
+        self.spacewidget.reset_button_pressed()
+
 class GravityRingApp(App):
 
     def build(self):
@@ -189,4 +216,3 @@ class GravityRingApp(App):
 
 if __name__ in ('__main__', '__android__'):
     GravityRingApp().run()
-

@@ -43,12 +43,13 @@ class OrderedDictYAMLLoader(yaml.Loader):
 class Config(object):
     """Class cointains all config for applications"""
     __metaclass__ = Singleton
-    def __init__(self, data, fromfile=False):
+    loaded = False
+    def __init__(self ):
         self.data = OrderedDict()
-        if fromfile:
-            self.load(data)
-        else:
-            self.loadfromstring(load)
+        # if fromfile:
+        #     self.load(data)
+        # else:
+        #     self.loadfromstring(load)
 
     def instance(cls):
         return cls._instances[cls]
@@ -56,10 +57,13 @@ class Config(object):
     def load(self, filename):
         """Function load yaml file to ordered dict """
         filehandler = open(filename)
-        self.data = yaml.load(filehandler, Loader = OrderedDictYAMLLoader)
+        self.data = yaml.load(filehandler, Loader=OrderedDictYAMLLoader)
         filehandler.close()
-    def loadfromstring(self, yamlstring):
-        self.data = yaml.load(yamlstring, Loader = OrderedDictYAMLLoader)
+        Config.loaded = True
+
+    def loadfromstream(self, yamlstring):
+        self.data = yaml.load(yamlstring, Loader=OrderedDictYAMLLoader)
+        Config.loaded = True
     def get(self, key):
         """ Return specfy key"""
         #TODO: Add better docstring

@@ -1,11 +1,15 @@
 import yaml
 import re
 from collections import OrderedDict
+from kivy.logger import Logger
 import yaml.constructor
-import logging
+# import logging
+from simulation.conf import Config
 from utils import Singleton
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from simulation.system.solarsystem import SpaceObject
+
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
 
 LEFT_ASSOC = 0
 RIGHT_ASSOC = 1
@@ -95,15 +99,15 @@ class ConfigParser(object):
         self.solarsystemconf = self.config.get_solarsystem()
         self.definitions['position'] = {}
         self.definitions['position']['center'] = (0, 0)
-        self.system = dict()
+        self.system = list()
     
     def parse(self):
         for name, spaceobjectconf in self.solarsystemconf.iteritems():
-            spaceobj = SpaceObjectBase()
+            spaceobj = SpaceObject(pos=[0, 0])
             for attr in spaceobjectconf.keys():
                 if attr in ConfigParser.ATTRIBUTESKEY:
                     value = spaceobjectconf[attr]
-                    logger.debug("value  %s" %value)
+                    Logger.debug("value  %s" %value)
                     if isinstance(value, str):
                         if value in self.definitions[ConfigParser.DEFINITIONSKEY[attr]]:
                             tmpvalue = self.definitions[ConfigParser.DEFINITIONSKEY[attr]][value]
@@ -124,14 +128,13 @@ class ConfigParser(object):
                             print("Error")
                             return
                     setattr(spaceobj, attr, tmpvalue)
-            self.system[name] = spaceobj
-            logger.debug("System = %s"%self.system)
+            self.system.append(spaceobj)
+            Logger.debug("System = %s"%self.system)
     def resovle(self, stringeq):
         stringeq = stringeq.split(" ")
-        logger.debug("after split  %s" %stringeq)
         string = infixToRPN(stringeq)
 
-        logger.debug("After RPN string %s" %string)
+        Logger.debug("After RPN string %s" %string)
         stack =  []
         for item in string:
             if re.match("\w+\.\w+", item):
@@ -143,7 +146,6 @@ class ConfigParser(object):
                     if item[0] in ConfigParser.DEFINITIONSKEY.values():
                         item = self.definitions[item[0]][item[1]]
                 stack.append(item)
-                logger.debug("stack %s" %stack)
             elif item in ConfigParser.OPERATORS:
                 try:
                     value1 = stack.pop()

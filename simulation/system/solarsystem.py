@@ -1,13 +1,13 @@
 import kivy
 kivy.require('1.0.9')
 from random import random
-from kivy.graphics import Color, Ellipse, Line
+from kivy.graphics import Color, Ellipse, Line, Triangle
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty
 from kivy.properties import ReferenceListProperty
 from kivy.properties import ObjectProperty
-
+from kivy.utils import get_random_color
 from kivy.logger import Logger
 import math
 import copy
@@ -17,7 +17,7 @@ from simulation.numericmethods.euler import Euler
 from simulation.numericmethods.verletvelocity import VerletVerlocity
 from utils import Singleton
 
-GRAVITYSTRENGTH =  14
+GRAVITYSTRENGTH = 14
 DENSITY = 0.001
 
 
@@ -29,14 +29,21 @@ class Force(Widget):
     def calulate(self, mass1, mass2, distance):
         self.value = GRAVITYSTRENGTH * mass1*mass2/distance if distance>1e-5 else 0.0
         return self.value
-    def __init__(self, spaceobject1, spaceobject2,distancesqured, **kwargs):
+    def __init__(self, spaceobject2, spaceobject1,distancesqured, **kwargs):
         super(Widget, self).__init__(**kwargs)
-        self.vector = (spaceobject1.x - spaceobject2.x, spaceobject1.y - spaceobject2.y )
+        self.vector = (spaceobject2.x - spaceobject1.x, spaceobject2.y - spaceobject1.y )
+        self.startpos = [spaceobject1.x, spaceobject1.y]
+        self.endpos = [0, 0]
         self.value = self.calulate(spaceobject1.mass, spaceobject2.mass, distancesqured)
-    def draw(self, canvas, startpos):
-        with canvas:
-            Line(pos=[self.endpos, startpos], width=5)
-
+        self.endpos[0] = self.startpos[0] + self.vector[0]/ 8 * self.value
+        self.endpos[1] = self.startpos[1] + self.vector[1]/ 8 * self.value
+    def draw(self, canvas, radius):
+        Color(1,1,0)
+        Line(points=(self.startpos[0] , self.startpos[1],self.endpos[0], self.endpos[1]), width=1)
+            # Line(points=(420,220 ,880, 400), width=1)
+            # Triangle()
+    def __str__(self):
+        Logger.debug(" start %s endpod %s value %s " % (self.startpos, self.endpos, self.value))
 class SpaceObjectBase(object):
 
     def __init__(self):
@@ -103,14 +110,14 @@ class SpaceObject(SpaceObjectBase):
 
     objectcount = 0
     mergedforces = list()
-    def __init__(self, pos, radius = 10, **kwargs):
+    def __init__(self, pos, radius=10, **kwargs):
         super(SpaceObject, self).__init__()
         self.spaceid = SpaceObject.objectcount
         SpaceObject.objectcount += 1
         self.pos = list(pos)
         self.forces = {}
         self.radius = int(radius)
-        self.color = (randint(0, 1), randint(0, 1), randint(0, 1), randint(0,1) )
+        self.color = get_random_color()
         self.mass = DENSITY*4.*math.pi*(self.radius**3.)/3.
         # self.mass *= 10
         self.merged = False
@@ -142,20 +149,25 @@ class SpaceObject(SpaceObjectBase):
         # distancey = self.y - other.y
         # self.calcutateforces( distancex, distancey, other.spaceid)
     def __cleanup(self):
-        for item in mergedforces:
+        forcescopy = copy.deepcopy(self.forces)
+        for item in SpaceObject.mergedforces:
             if item in self.forces.keys():
-                del self.forces[item]
+                del forcescopy[item]
+        self.forces = forcescopy
     def draw(self, canvas, width, height, zoom):
-        with canvas:
-            Color(
-                    self.color)
-            width = width / 2.
-            height = height / 2.
-            tmpposx = width + self.x
-            tmpposy = height +self.y 
-            Ellipse(pos=( self.x, self.y ), size=(zoom * self.radius,zoom * self.radius))
+        width = width / 2.
+        height = height / 2.
+        tmpposx = width + self.x
+        tmpposy = height +self.y
+        Logger.debug(" self%s " % len(self.forces.values()))
+        Color(*self.color)
+        Ellipse(pos=( self.x, self.y ), size=(zoom * self.radius,zoom * self.radius))
+        for force in self.forces.values():
+            # if force.value > 1e-5: 
+            force.draw(canvas, self.radius)
 
-    
+    def radiusfrommass(self):
+        self.radius = self.mass / (4 * math.pi )
     def merge(self, other):
         self.mass += other.mass
         self.radius = (3. * self.mass/(DENSITY *4. * math.pi))**(1./3.)
@@ -165,11 +177,14 @@ class SpaceObject(SpaceObjectBase):
         except KeyError:
             pass
         SpaceObject.mergedforces.append(other.spaceid)
+        self.__cleanup()
 
     def calcutateforces(self, distancesqured, other):
         # self.forces[other.spaceid] = 
         # distancesqured = distancex*distancex + distancey*distancey
         self.forces[other.spaceid] = Force(other, self, distancesqured)
+        other.forces[self.spaceid] = self.forces[other.spaceid]
+        # other.forces[self.spaceid].value *= -1.
         return self.forces[other.spaceid].value
 
 
@@ -185,6 +200,7 @@ class SpaceObject(SpaceObjectBase):
         return reprstr
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and  self.radius == self.radius
+
 class SolarSystem(object):
     # __metaclass__ = Singleton
 
@@ -211,6 +227,9 @@ class SolarSystem(object):
                             item2.merge(item)
                             items_merged.append(item.spaceid)
                             tmp.remove(item)
+                        if item.x > 3000 or item.y > 3000:
+                            items_merged.append(item.spaceid)
+                            tmp.remove(item)
                         # if item.spaceid == 0:
                         #     item.merge(item2)
                         #     items_merged.append(item2.spaceid)
@@ -225,6 +244,7 @@ class SolarSystem(object):
                         #     tmp.remove(item2)
         self.system = tmp
         self.system = self.matmethod.calculate(self.system)
+        Logger.debug(" count %s " % (len(self.system)))
         return self
     def clear(self):
         self.system = list()
