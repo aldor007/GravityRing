@@ -1,16 +1,8 @@
 [run]
 branch = True
-omit = 
-      */python?.?/*
-      */site-packages/nose/*
-      */tests/*
-      *pygame*
-      */python2.7/*
+omit =/usr/*
+
 [report]
-omit = 
-      */python?.?/*
-      */python2.7/*
-      */site-packages/nose/**
-      */tests/*
+omit = /usr/*
 [html]
-directory = coverage_html_report
+directory = html_report
