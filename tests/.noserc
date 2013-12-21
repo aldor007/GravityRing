@@ -1,0 +1,12 @@
+[nosetests] 
+
+# Run doctests as well. 
+# Be very verbose. 
+verbosity=3 
+detailed-errors=True
+nocapture=True
+with-doctest=True
+with-coverage=True
+cover-html=True
+
+

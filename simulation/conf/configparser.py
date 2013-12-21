@@ -24,6 +24,7 @@ OPERATORS = {
 }
 
 def isOperator(token):
+    """check if token in operators dict"""
     return token in OPERATORS.keys()
 
 def isAssociative(token, assoc):
@@ -37,6 +38,7 @@ def cmpPrecedence(token1, token2):
     return OPERATORS[token1][0] - OPERATORS[token2][0]
 
 def infixToRPN(tokens):
+    """Conver infinix writen statement to revers polish notation"""
     out = []
     stack = []
 
@@ -84,7 +86,7 @@ class SpaceObjectBase(object):
         return "postion=%s velocity=%s mass=%s radius=%s" %(self.position, self.velocity, self.mass, self.radius)
 
 class ConfigParser(object):
-    """Docstring for ConfigParser """
+    """Parsing yaml configuration file """
     __metaclass__ = Singleton
     DEFINITIONSKEY = {'mass': 'mass', 'position': 'distance', "velocity": 'velocity'}
     ATTRIBUTESKEY = ('mass', 'position', 'velocity')
@@ -100,8 +102,11 @@ class ConfigParser(object):
         self.definitions['position'] = {}
         self.definitions['position']['center'] = (0, 0)
         self.system = list()
-    
+
     def parse(self):
+        """Parse configuration for simulation 
+           convert all knowed attributes to number values
+           :return SpaceObject list """
         for name, spaceobjectconf in self.solarsystemconf.iteritems():
             spaceobj = SpaceObject(pos=[0, 0])
             for attr in spaceobjectconf.keys():
@@ -130,7 +135,10 @@ class ConfigParser(object):
                     setattr(spaceobj, attr, tmpvalue)
             self.system.append(spaceobj)
             Logger.debug("System = %s"%self.system)
+            return self.system
+
     def resovle(self, stringeq):
+        """Resolve math statement"""
         stringeq = stringeq.split(" ")
         string = infixToRPN(stringeq)
 

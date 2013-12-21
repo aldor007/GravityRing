@@ -1,0 +1,16 @@
+[run]
+branch = True
+omit = 
+      */python?.?/*
+      */site-packages/nose/*
+      */tests/*
+      *pygame*
+      */python2.7/*
+[report]
+omit = 
+      */python?.?/*
+      */python2.7/*
+      */site-packages/nose/**
+      */tests/*
+[html]
+directory = coverage_html_report

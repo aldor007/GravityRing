@@ -1,3 +1,4 @@
+"""Implemation of RK4 module"""
 import math
 import copy
 from kivy.logger import Logger
@@ -29,19 +30,19 @@ class RungeKutta(NumericMethod):
             new_system.append(planet)
         return new_system
 
-    def accceleration(self, planet1):
-        ax, ay = 0.0, 0.0
-        for planet2 in self.system:
-            if planet1.spaceid == planet2.spaceid:
-                continue
-            force, radius = planet2.interactions(planet1)
-            dx = planet2.x - planet1.x
-            dy = planet2.y - planet1.y
-            ax += force*(dx)/radius
-            ay += force*(dy)/radius
-                # Logger.info("planet1 x=%s y=%s mass= %s planet2 x=%s y=%s mass =%s distance=%s force=%s m " %(planet1.x, planet1.y, planet1.mass, planet2.x,planet2.x, planet2.mass, radius,force ))
-        # Logger.info(" a %s %s " %(ax, ay) )
-        return (ax, ay)
+    # def accceleration(self, planet1):
+    #     ax, ay = 0.0, 0.0
+    #     for planet2 in self.system:
+    #         if planet1.spaceid == planet2.spaceid:
+    #             continue
+    #         force, radius = planet2.interactions(planet1)
+    #         dx = planet2.x - planet1.x
+    #         dy = planet2.y - planet1.y
+    #         ax += force*(dx)/radius
+    #         ay += force*(dy)/radius
+    #             # Logger.info("planet1 x=%s y=%s mass= %s planet2 x=%s y=%s mass =%s distance=%s force=%s m " %(planet1.x, planet1.y, planet1.mass, planet2.x,planet2.x, planet2.mass, radius,force ))
+    #     # Logger.info(" a %s %s " %(ax, ay) )
+    #     return (ax, ay)
 
     # def accceleration(self, planet1):
     #     ax, ay = 0.0, 0.0
@@ -64,7 +65,7 @@ class RungeKutta(NumericMethod):
         tmpplanet.y = planet.y + coeffcient.dy*dt
         tmpplanet.velocity_x = planet.velocity_x + coeffcient.dvx*dt
         tmpplanet.velocity_y = planet.velocity_y + coeffcient.dvy*dt
-        ax, ay = self.accceleration(tmpplanet)
+        ax, ay = self.acceleration(tmpplanet)
         return Coeffcient(tmpplanet.velocity_x, tmpplanet.velocity_y, ax, ay)
 
     def intermediate(self, planet, t, dt):

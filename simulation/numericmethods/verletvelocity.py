@@ -1,10 +1,10 @@
-import math
+"""Modul for resolving Verlet"""
 import copy
 from kivy.logger import Logger
 from simulation.numericmethods.base import NumericMethod
 from simulation.numericmethods.base import Coeffcient
 from simulation.numericmethods.base import Derivative
-GRAVITYSTRENGTH = 100
+
 class VerletVerlocity(NumericMethod):
     """Solving equation using method RungaKutta 4 degrea"""
     def __init__(self):
@@ -30,7 +30,7 @@ class VerletVerlocity(NumericMethod):
             # if planet.spaceid != 0:
                 # Logger.info(str(planet))
 
-            ax, ay = self.accceleration(planet)
+            ax, ay = self.acceleration(planet)
             planet.x += planet.velocity_x * dt + 0.5 * oldacc_x * dt * dt
             planet.y += planet.velocity_y * dt + 0.5 * oldacc_y * dt * dt
             planet.velocity_x += 0.5 * (ax + oldacc_x) * dt
@@ -38,17 +38,6 @@ class VerletVerlocity(NumericMethod):
             new_system.append(planet)
         return new_system
 
-    def accceleration(self, planet1):
-        ax, ay = 0.0, 0.0
-        for planet2 in self.system:
-            if planet1.spaceid == planet2.spaceid:
-                continue
-            force, radius = planet2.interactions(planet1)
-            dx = planet2.x - planet1.x
-            dy = planet2.y - planet1.y
-            ax += force*(dx)/radius
-            ay += force*(dy)/radius
-        return (ax, ay)
 
 
 
@@ -59,7 +48,7 @@ class VerletVerlocity(NumericMethod):
         tmpplanet.y = planet.y + coeffcient.dy*dt
         tmpplanet.velocity_x = planet.velocity_x + coeffcient.dvx*dt
         tmpplanet.velocity_y = planet.velocity_y + coeffcient.dvy*dt
-        ax, ay = self.accceleration(tmpplanet)
+        ax, ay = self.acceleration(tmpplanet)
         return Coeffcient(tmpplanet.velocity_x, tmpplanet.velocity_y, ax, ay)
 
     def intermediate(self, planet, t, dt):

@@ -23,12 +23,10 @@ DENSITY = 0.001
 
 
 class Force(Widget):
-    length = 0
+    """Class containg force value"""
     gravitystrength = GRAVITYSTRENGTH
 
-    def calulate(self, mass1, mass2, distance):
-        self.value = GRAVITYSTRENGTH * mass1*mass2/distance if distance>1e-5 else 0.0
-        return self.value
+
     def __init__(self, spaceobject2, spaceobject1,distancesqured, **kwargs):
         super(Widget, self).__init__(**kwargs)
         self.vector = (spaceobject2.x - spaceobject1.x, spaceobject2.y - spaceobject1.y )
@@ -37,6 +35,13 @@ class Force(Widget):
         self.value = self.calulate(spaceobject1.mass, spaceobject2.mass, distancesqured)
         self.endpos[0] = self.startpos[0] + self.vector[0]/ 8 * self.value
         self.endpos[1] = self.startpos[1] + self.vector[1]/ 8 * self.value
+
+    def calulate(self, mass1, mass2, distance):
+        """Calculate value of force on object"""
+        print(Force.gravitystrength, mass1, mass2, distance)
+        self.value = float(Force.gravitystrength) * float(mass1)*float(mass2)/float(distance) if distance>1e-5 else 0.0
+        return self.value
+
     def draw(self, canvas, radius):
         Color(1,1,0)
         Line(points=(self.startpos[0] , self.startpos[1],self.endpos[0], self.endpos[1]), width=1)
@@ -205,9 +210,19 @@ class SolarSystem(object):
     # __metaclass__ = Singleton
 
     def __init__(self, speed = 1):
-        self.gravity = GRAVITYSTRENGTH
+        self.gravity_val = GRAVITYSTRENGTH
         self.system = list()
         self.matmethod = VerletVerlocity()
+    @property
+    def gravity(self):
+        return self.gravity_val
+
+    @gravity.setter
+    def gravity(self, value):
+        self.gravity_val = float(value)
+        GRAVITYSTRENGTH = float(value)
+        Force.gravitystrength = float(value)
+
     def update(self):
         items_merged = list()
         tmp = list(self.system)

@@ -1,3 +1,4 @@
+"""Euler method for solving statment"""
 import math
 import copy
 from kivy.logger import Logger
@@ -16,21 +17,20 @@ class Euler(NumericMethod):
 
 
     # def initialCoefficent(self, planet):
-        
 
-    def accceleration(self, planet1):
-        ax, ay = 0.0, 0.0
-        for planet2 in self.system:
-            if planet1.spaceid != planet2.spaceid:
-                force, radius = planet1.interactions(planet2)
-                try:
-                    ax += planet2.mass / math.fabs(planet1.x-planet2.x)**3 *  (planet1.x -planet2.x)
-                    ay += planet2.mass / math.fabs(planet1.y-planet2.y)**3 *  (planet1.y -planet2.y)
-                except ZeroDivisionError:
-                    ax += 0
-                    ay += 0
+    # def accceleration(self, planet1):
+    #     ax, ay = 0.0, 0.0
+    #     for planet2 in self.system:
+    #         if planet1.spaceid != planet2.spaceid:
+    #             force, radius = planet1.interactions(planet2)
+    #             try:
+    #                 ax += planet2.mass / math.fabs(planet1.x-planet2.x)**3 *  (planet1.x -planet2.x)
+    #                 ay += planet2.mass / math.fabs(planet1.y-planet2.y)**3 *  (planet1.y -planet2.y)
+    #             except ZeroDivisionError:
+    #                 ax += 0
+    #                 ay += 0
 
-        return ax, ay
+    #     return ax, ay
 
     # def accceleration(self, planet1):
     #     ax, ay = 0.0, 0.0
@@ -44,18 +44,10 @@ class Euler(NumericMethod):
     def calculate(self, system, dt=0.1):
         """Main function returning dict of new system"""
         self.system = system
-        # self.updateAcceleration()
         new_system = list()
         for planet in self.system:
             if planet.spaceid != 0:
-                axold, ayold = self.accceleration(planet)
-                # xexpect = planet.x + planet.velocity_x * dt
-                # yexpect = planet.y + planet.velocity_y * dt
-                # planettmp = copy.deepcopy(planet)
-                # planettmp.x = xexpect
-                # planettmp.y = yexpect
-                # axexpect, ayexpect = self.accceleration(planettmp)
-
+                axold, ayold = self.acceleration(planet)
                 planet.x += planet.velocity_x * self.h * dt
                 planet.y += planet.velocity_y  * self.h * dt
                 planet.velocity_x += axold  * self.h * dt

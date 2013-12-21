@@ -30,21 +30,20 @@ from kivy.factory import Factory
 
 
 
-DENSITY = 0.001
-
-# The gravity coefficient - it's my universe, I can pick whatever I want :-)
-GRAVITYSTRENGTH = 10000000
 class LoadDialog(FloatLayout):
+    """Dialog for loading configuration"""
     load = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
 
 class SaveDialog(FloatLayout):
+    """Dialog for saving prepared configuration"""
     save = ObjectProperty(None)
     text_input = ObjectProperty(None)
     cancel = ObjectProperty(None)
 
 class Menu(Screen):
+    """Menu screen"""
     pass
     # def on_enter(self):
     #     self.t = 0.0
@@ -54,24 +53,29 @@ class Menu(Screen):
     #     self.logo.pos = (self.size[0]/2 - 405/2, self.size[1]/2 - 153/2 + 157 + math.sin(self.t * 3) * 10)
     #     self.t += dt
 class Settings(Screen):
+    """Screen for settings"""
     loadfile = ObjectProperty(None)
     savefile = ObjectProperty(None)
     text_input = ObjectProperty(None)
 
     def dismiss_popup(self):
+        """Close popups"""
         self._popup.dismiss()
 
     def show_load(self):
+        """show loading dialog"""
         content = LoadDialog(load=self.load, cancel=self.dismiss_popup)
         self._popup = Popup(title="Load file", content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
     def show_save(self):
+        """show dialog for saving file"""
         content = SaveDialog(save=self.save, cancel=self.dismiss_popup)
         self._popup = Popup(title="Save file", content=content, size_hint=(0.9, 0.9))
         self._popup.open()
 
     def load(self, path, filename):
+        """load configuration file"""
         with open(os.path.join(path, filename[0])) as stream:
             self.text_input.text = stream.read()
             config = Config().loadfromstring(self.text_input.text)
@@ -81,20 +85,18 @@ class Settings(Screen):
         self.dismiss_popup()
 
     def save(self, path, filename):
+        """ save prepared configuration """
         with open(os.path.join(path, filename), 'w') as stream:
             stream.write(self.text_input.text)
-            
         self.dismiss_popup()
 
 class Space(Widget):
+    """ Main widget for simulation"""
     solarsystem = SolarSystem()
     config = Config()
-    # def __init__(self, **kwargs):
-    #     super(Space, self).__init__(**kwargs)
-    #     self.width -= self.width/8
-    #     self.height -= self.height/8
-    #     self.start_space()
+
     def start_space(self):
+        """start simulation of object"""
         Clock.schedule_interval(self.draw, 1. / 3)
         sun = SpaceObject(pos=(420, 220), radius=100)
         # sun.mass = 14
@@ -110,7 +112,9 @@ class Space(Widget):
         Space.solarsystem.append(spaceob1)
         # Space.solarsystem.append(SpaceObject(pos=(822,201),radius = 3))
         # Space.solarsystem.append(SpaceObject(pos=(822,401),radius = 3))
+
     def on_touch_down(self, touch):
+        """method triggered on touch event"""
         if self.collide_point(*touch.pos):
             touch.grab(self)
             Logger.info("Touch %s %s" % (self.width, self.height))
@@ -118,6 +122,7 @@ class Space(Widget):
             return True
         return False
     def on_touch_move(self, touch):
+        """method triggered on touch move event"""
         if self.collide_point(*touch.pos):
             if touch.grab_current is self:
                 dxy = 1
@@ -132,6 +137,7 @@ class Space(Widget):
                 pass
         return False
     def on_touch_up(self, touch):
+        """method triggered on touch up event"""
         if self.collide_point(*touch.pos):
             if touch.grab_current is self:
                 Logger.info("Touchi3 %s %s" % (self.width, self.height))
@@ -145,9 +151,11 @@ class Space(Widget):
             return True
 
     def update(self, dt):
+        """Main method for updating """
         Space.solarsystem.update()
 
     def draw(self, dt):
+        """method for drawing new system """
         zoom = 0.5
         self.canvas.clear()
         with self.canvas:
@@ -156,8 +164,11 @@ class Space(Widget):
                 item.draw(self.canvas, self.width, self.height, zoom)
 
     def stop_button_pressed(self):
+        """Stop updating system """
         Clock.unschedule(self.update)
+
     def start_button_pressed(self):
+        """Start updating system """
         Logger.info("START")
         Clock.schedule_interval(self.update, 1./3)
 
@@ -165,6 +176,7 @@ class Space(Widget):
         # self.solarsystem[0].center = self.center
         # self.solarsystem[0].velocity = Vector(4, 0).rotate(randint(0, 360))
     def reset_button_pressed(self):
+        """Reset space widget """
         self.stop_button_pressed()
         self.canvas.clear()
         Space.solarsystem.clear()
@@ -174,8 +186,11 @@ Factory.register('Space', Space)
 
 
 class GravityRing(Screen):
+    """Main screen application class"""
+
     solarsystem = SolarSystem()
     spacewidget = ObjectProperty(None)
+
     def __init__(self, **kwargs):
         super(GravityRing, self).__init__(**kwargs)
 
@@ -185,16 +200,27 @@ class GravityRing(Screen):
         Clock.schedule_interval(self.spacewidget.draw, 1. / 30)
         self.add_widget(self.spacewidget, 500)
     # def on_pre_enter(self):
+    # def __getattribute__(self, name):
+    #     """Proxy method for passing calls"""
+    #     return getattr(self.spacewidget, name)
+
     def stop_button_pressed(self):
+        """Pass stop button pressed"""
         self.spacewidget.stop_button_pressed()
+
     def start_button_pressed(self):
+        """Pass start button pressed"""
         self.spacewidget.start_button_pressed()
+
     def reset_button_pressed(self):
+        """Pass reset  button pressed"""
         self.spacewidget.reset_button_pressed()
 
 class GravityRingApp(App):
+    """Aplication class"""
 
     def build(self):
+        """build application"""
         from kivy.base import EventLoop
         EventLoop.ensure_window()
         self.window = EventLoop.window
@@ -209,6 +235,7 @@ class GravityRingApp(App):
         return self.sm
 
     def hook_keyboard(self, window, key, *largs):
+        """method for bindings keys"""
         if key == 27: # BACK
             self.sm.current = self.sm.previous()
         elif key in (282, 319): # SETTINGS
