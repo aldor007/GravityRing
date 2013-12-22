@@ -53,7 +53,7 @@ class SpaceObjectBase(object):
         self.pos = [0.0, 0.]
         self.velocity = [0., 0.]
         self.mass = None
-        self.radius = None
+        self.radius_val = None
 
     @property
     def x(self):
@@ -63,6 +63,14 @@ class SpaceObjectBase(object):
     def x(self, value):
         self.pos[0] = value
 
+    @property
+    def radius(self):
+        return self.radius_val
+
+    @radius.setter
+    def radius(self, value):
+        self.radius_val = value
+        self.mass = DENSITY*4.*math.pi*(self.radius_val**3.)/3.
     @property
     def y(self):
         return self.pos[1]

@@ -119,11 +119,12 @@ class Space(Widget):
             touch.grab(self)
             Logger.info("Touch %s %s" % (self.width, self.height))
             self.move = [0, 0]
-            # if self.drawvelocity:
-                # if Space.solarsystem.points_in_system(*touch.pos):
-                #     touch.ud['line'] = Line(points=(touch.x, touch.y))
-                #     Space.to_draw.append(touch.ud['line'])
-
+            if self.drawvelocity:
+                if Space.solarsystem.points_in_system(*touch.pos):
+                    with self.canvas:
+                        touch.ud['line'] = Line(points=(touch.x, touch.y))
+                        Space.to_draw.append(touch.ud['line'])
+                
             return True
         return False
     def on_touch_move(self, touch):
@@ -179,8 +180,8 @@ class Space(Widget):
         zoom = 0.5
         self.canvas.clear()
         with self.canvas:
-            # for item in Space.to_draw:
-            #     item
+            for item in Space.to_draw:
+                item
             for item in Space.solarsystem.get_system():
                 item.draw(self.canvas, self.width, self.height, zoom)
 
@@ -191,7 +192,7 @@ class Space(Widget):
     def start_button_pressed(self):
         """Start updating system """
         Logger.info("START")
-        Clock.schedule_interval(self.update, 1./3)
+        Clock.schedule_interval(self.update, 1./60)
 
         # self.solarsystem.append(SpaceObject(pos=(0, 0)))
         # self.solarsystem[0].center = self.center
@@ -204,6 +205,11 @@ class Space(Widget):
         self.start_space()
     def drawvelocity_button_pressed(self):
         Space.drawvelocity = not Space.drawvelocity
+        Logger.debug("Draw ve %s" % Space.drawvelocity)
+        if Space.drawvelocity:
+            Clock.unschedule(self.draw)
+        else:
+            Clock.schedule_interval(self.draw, 1./130)
 Factory.register('Space', Space)
 
 
@@ -219,7 +225,7 @@ class GravityRing(Screen):
         self.spacewidget = Space(id="spacewidget")
         self.spacewidget.width = self.width - self.width/8.
         self.spacewidget.height = 55
-        Clock.schedule_interval(self.spacewidget.draw, 1. / 3.)
+        Clock.schedule_interval(self.spacewidget.draw, 1. / 130.)
         self.add_widget(self.spacewidget, 500)
     # def on_pre_enter(self):
     # def __getattribute__(self, name):
