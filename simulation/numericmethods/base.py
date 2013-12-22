@@ -19,7 +19,6 @@ class NumericMethod(object):
             dy = planet2.y - planet1.y
             ax += force/planet1.mass*(dx)/radius
             ay += force/planet1.mass*(dy)/radius
-            print(" ax force ",force,dx, dy, radius, ay  )
         return (ax, ay)
 
 

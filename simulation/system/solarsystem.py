@@ -147,13 +147,14 @@ class SpaceObject(SpaceObjectBase):
         
 
     def draw(self, canvas, width, height, zoom):
+        # self.__cleanup()
         width = width / 2.
         height = height / 2.
         tmpposx = width + self.x
         tmpposy = height +self.y
         Color(*self.color)
-        print len(self.forces.keys()), SpaceObject.objectcount 
         Ellipse(pos=( self.x, self.y ), size=(zoom * self.radius,zoom * self.radius))
+        Logger.debug("forces %s " %  len(self.forces.keys()))
         for force in self.forces.values():
             # if force.value > 1e-5: 
             force.draw(canvas, self.radius)
@@ -167,7 +168,6 @@ class SpaceObject(SpaceObjectBase):
         except KeyError:
             pass
         SpaceObject.mergedforces.append(other.spaceid)
-        self.__cleanup()
 
     def calcutateforces(self, distancesqured, other):
         # self.forces[other.spaceid] = 
@@ -183,7 +183,7 @@ class SpaceObject(SpaceObjectBase):
         distancey = self.y - other.y
         distance = math.sqrt(distancex**2 + distancey**2)
         return distance <= (self.radius + other.radius)
-    
+
     def __str__(self):
         reprstr = super(SpaceObject, self).__str__()
         reprstr += ' spaceid = %s' % self.spaceid
@@ -248,6 +248,16 @@ class SolarSystem(object):
         SpaceObject.mergedforces = list()
         self.system = self.matmethod.calculate(self.system)
         return self
+    def points_in_system(self, x, y):
+        tmp = SpaceObjectBase()
+        tmp.x = x
+        tmp.y = y
+        tmp.radius = 1
+        for item in self.system:
+            if item.collision(tmp):
+                del tmp
+                return True
+        return False
     def clear(self):
         self.system = list()
 

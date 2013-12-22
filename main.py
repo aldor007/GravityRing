@@ -94,10 +94,10 @@ class Space(Widget):
     """ Main widget for simulation"""
     solarsystem = SolarSystem()
     config = Config()
-
+    drawvelocity = False
+    to_draw = list()
     def start_space(self):
         """start simulation of object"""
-        Clock.schedule_interval(self.draw, 1. / 3)
         sun = SpaceObject(pos=(420, 220), radius=100)
         # sun.mass = 14
         sun.spaceid = 0
@@ -118,7 +118,12 @@ class Space(Widget):
         if self.collide_point(*touch.pos):
             touch.grab(self)
             Logger.info("Touch %s %s" % (self.width, self.height))
-            self.radius = 1
+            self.move = [0, 0]
+            # if self.drawvelocity:
+                # if Space.solarsystem.points_in_system(*touch.pos):
+                #     touch.ud['line'] = Line(points=(touch.x, touch.y))
+                #     Space.to_draw.append(touch.ud['line'])
+
             return True
         return False
     def on_touch_move(self, touch):
@@ -130,8 +135,10 @@ class Space(Widget):
                     dxy = touch.dx
                 else:
                     dxy = touch.dy
-                self.radius += dxy
-                Logger.info("AAATouchi3 %s %s" % (self.width, self.height))
+                self.move[0] += touch.dx
+                self.move[1] += touch.dx
+                if self.drawvelocity:
+                    touch.ud['line'].points += [touch.x, touch.y]
                 return True
             else:
                 pass
@@ -140,10 +147,23 @@ class Space(Widget):
         """method triggered on touch up event"""
         if self.collide_point(*touch.pos):
             if touch.grab_current is self:
-                Logger.info("Touchi3 %s %s" % (self.width, self.height))
             # I receive my grabbed touch, I must ungrab it!
-                newobject = SpaceObject(pos=(touch.x, touch.y), radius = self.radius)
-                Space.solarsystem.append(newobject)
+                newobject = SpaceObject(pos=(touch.x, touch.y))
+                if not self.drawvelocity:
+                    radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
+                    newobject.radius = radius
+                    if radius > 0:
+                        Space.solarsystem.append(newobject)
+                else:
+                    newobject.radius = 1
+                    tmpspace = list()
+                    for spaceobject in Space.solarsystem.get_system():
+                        if newobject.collision(spaceobject):
+                            spaceobject.velocity_x = self.move[0]
+                            spaceobject.velocity_y = self.move[1]
+                            Logger.debug("Draw velocity")
+                        tmpspace.append(spaceobject)
+                    Space.solarsystem.system = tmpspace
                 touch.ungrab(self)
             else:
             # it's a normal touch
@@ -159,6 +179,8 @@ class Space(Widget):
         zoom = 0.5
         self.canvas.clear()
         with self.canvas:
+            # for item in Space.to_draw:
+            #     item
             for item in Space.solarsystem.get_system():
                 item.draw(self.canvas, self.width, self.height, zoom)
 
@@ -180,7 +202,8 @@ class Space(Widget):
         self.canvas.clear()
         Space.solarsystem.clear()
         self.start_space()
-
+    def drawvelocity_button_pressed(self):
+        Space.drawvelocity = not Space.drawvelocity
 Factory.register('Space', Space)
 
 
@@ -196,7 +219,7 @@ class GravityRing(Screen):
         self.spacewidget = Space(id="spacewidget")
         self.spacewidget.width = self.width - self.width/8.
         self.spacewidget.height = 55
-        Clock.schedule_interval(self.spacewidget.draw, 1. / 30)
+        Clock.schedule_interval(self.spacewidget.draw, 1. / 3.)
         self.add_widget(self.spacewidget, 500)
     # def on_pre_enter(self):
     # def __getattribute__(self, name):
@@ -214,6 +237,10 @@ class GravityRing(Screen):
     def reset_button_pressed(self):
         """Pass reset  button pressed"""
         self.spacewidget.reset_button_pressed()
+
+    def drawvelocity_button_pressed(self):
+        """Pass reset  button pressed"""
+        self.spacewidget.drawvelocity_button_pressed()
 
 class GravityRingApp(App):
     """Aplication class"""
