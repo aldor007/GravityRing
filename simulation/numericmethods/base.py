@@ -23,7 +23,7 @@ class NumericMethod(object):
         return (ax, ay)
 
 
-class Coeffcient(object):
+class Coefficient(object):
     """Store date for coeffcient """
 
     def __init__(self, dx, dy, dvx, dvy):

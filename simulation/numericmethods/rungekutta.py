@@ -3,7 +3,7 @@ import math
 import copy
 from kivy.logger import Logger
 from simulation.numericmethods.base import NumericMethod
-from simulation.numericmethods.base import Coeffcient
+from simulation.numericmethods.base import Coefficient
 
 class RungeKutta(NumericMethod):
     """Solving equation using method RungaKutta 4 degrea"""
@@ -31,20 +31,20 @@ class RungeKutta(NumericMethod):
 
 
 
-    def evaluate(self, planet, coeffcient, t, dt):
-        """ calculate new coeffcient"""
+    def evaluate(self, planet, coefficient, t, dt):
+        """ calculate new coefficient"""
         tmpplanet = copy.deepcopy(planet)
-        tmpplanet.x = planet.x + coeffcient.dx*dt
-        tmpplanet.y = planet.y + coeffcient.dy*dt
-        tmpplanet.velocity_x = planet.velocity_x + coeffcient.dvx*dt
-        tmpplanet.velocity_y = planet.velocity_y + coeffcient.dvy*dt
+        tmpplanet.x = planet.x + coefficient.dx*dt
+        tmpplanet.y = planet.y + coefficient.dy*dt
+        tmpplanet.velocity_x = planet.velocity_x + coefficient.dvx*dt
+        tmpplanet.velocity_y = planet.velocity_y + coefficient.dvy*dt
         ax, ay = self.acceleration(tmpplanet)
-        return Coeffcient(tmpplanet.velocity_x, tmpplanet.velocity_y, ax, ay)
+        return Coefficient(tmpplanet.velocity_x, tmpplanet.velocity_y, ax, ay)
 
     def intermediate(self, planet, t, dt):
         """caclculate intermediate"""
         tmp = copy.deepcopy(planet)
-        k1 = self.evaluate(planet, Coeffcient(0., 0., 0., 0.), t, 0)
+        k1 = self.evaluate(planet, Coefficient(0., 0., 0., 0.), t, 0)
         k2 = self.evaluate(planet, k1, t, dt*0.5)
         k3 = self.evaluate(planet, k2, t, dt*0.5)
         k4 = self.evaluate(planet, k3, t, dt)

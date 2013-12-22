@@ -22,23 +22,21 @@ DENSITY = 0.001
 
 
 
-class Force(Widget):
+class Force(object):
     """Class containg force value"""
     gravitystrength = GRAVITYSTRENGTH
 
 
-    def __init__(self, spaceobject2, spaceobject1,distancesqured, **kwargs):
-        super(Widget, self).__init__(**kwargs)
+    def __init__(self, spaceobject2, spaceobject1, distancesqured):
         self.vector = (spaceobject2.x - spaceobject1.x, spaceobject2.y - spaceobject1.y )
         self.startpos = [spaceobject1.x, spaceobject1.y]
         self.endpos = [0, 0]
-        self.value = self.calulate(spaceobject1.mass, spaceobject2.mass, distancesqured)
+        self.value = self.calculate(spaceobject1.mass, spaceobject2.mass, distancesqured)
         self.endpos[0] = self.startpos[0] + self.vector[0]/ 8 * self.value
         self.endpos[1] = self.startpos[1] + self.vector[1]/ 8 * self.value
 
-    def calulate(self, mass1, mass2, distance):
+    def calculate(self, mass1, mass2, distance):
         """Calculate value of force on object"""
-        print(Force.gravitystrength, mass1, mass2, distance)
         self.value = float(Force.gravitystrength) * float(mass1)*float(mass2)/float(distance) if distance>1e-5 else 0.0
         return self.value
 
@@ -48,13 +46,12 @@ class Force(Widget):
             # Line(points=(420,220 ,880, 400), width=1)
             # Triangle()
     def __str__(self):
-        Logger.debug(" start %s endpod %s value %s " % (self.startpos, self.endpos, self.value))
+        return " start %s endpod %s value %s " % (self.startpos, self.endpos, self.value)
 class SpaceObjectBase(object):
 
     def __init__(self):
         self.pos = [0.0, 0.]
         self.velocity = [0., 0.]
-        self.acceleration = [0., 0.]
         self.mass = None
         self.radius = None
 
@@ -75,22 +72,6 @@ class SpaceObjectBase(object):
         self.pos[1] = value
 
     @property
-    def acceleration_x(self):
-        return self.acceleration[0]
-
-    @property
-    def acceleration_y(self):
-        return self.acceleration[1]
-
-    @acceleration_x.setter
-    def acceleration_x(self, value):
-        self.acceleration[0] = value
-
-    @acceleration_y.setter
-    def acceleration_y(self, value):
-        self.acceleration[1] = value
-
-    @property
     def velocity_x(self):
         return self.velocity[0]
 
@@ -107,7 +88,7 @@ class SpaceObjectBase(object):
         self.velocity[1] = value
 
     def __str__(self):
-        return "postion=%s velocity=%s mass=%s acceleration=%s radius=%s" %(self.pos, self.velocity,self.mass,self.acceleration, self.radius)
+        return "postion=%s velocity=%s mass=%s  radius=%s" %(self.pos, self.velocity,self.mass, self.radius)
 
 
 
@@ -127,7 +108,7 @@ class SpaceObject(SpaceObjectBase):
         # self.mass *= 10
         self.merged = False
         self.velocity = [0., 0.]
-    
+
     def __deepcopy__(self, memo):
         dpcpy = SpaceObject((0,0))
         SpaceObject.objectcount -= 1
@@ -153,12 +134,13 @@ class SpaceObject(SpaceObjectBase):
         # distancex = self.x - other.x
         # distancey = self.y - other.y
         # self.calcutateforces( distancex, distancey, other.spaceid)
-    def __cleanup(self):
-        forcescopy = copy.deepcopy(self.forces)
-        for item in SpaceObject.mergedforces:
-            if item in self.forces.keys():
-                del forcescopy[item]
-        self.forces = forcescopy
+    # def __cleanup(self):
+    #     forcescopy = copy.deepcopy(self.forces)
+    #     for item in SpaceObject.mergedforces:
+    #         print "merged", item, self.forces
+    #         if item in self.forces.keys():
+    #             del forcescopy[item]
+    #     self.forces = forcescopy
     def draw(self, canvas, width, height, zoom):
         width = width / 2.
         height = height / 2.
@@ -171,8 +153,6 @@ class SpaceObject(SpaceObjectBase):
             # if force.value > 1e-5: 
             force.draw(canvas, self.radius)
 
-    def radiusfrommass(self):
-        self.radius = self.mass / (4 * math.pi )
     def merge(self, other):
         self.mass += other.mass
         self.radius = (3. * self.mass/(DENSITY *4. * math.pi))**(1./3.)
@@ -182,7 +162,6 @@ class SpaceObject(SpaceObjectBase):
         except KeyError:
             pass
         SpaceObject.mergedforces.append(other.spaceid)
-        self.__cleanup()
 
     def calcutateforces(self, distancesqured, other):
         # self.forces[other.spaceid] = 

@@ -7,5 +7,6 @@ eggs
 parts
 src/*.egg-info
 lib
+tests/cover/*
 *.pyc
 lib64
