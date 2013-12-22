@@ -21,6 +21,8 @@ class ForceTest(unittest.TestCase):
         self.p1.mass = self.data['p1']['mass']
         self.p2.pos = self.data['p2']['pos']
         self.p2.mass = self.data['p2']['mass']
+        self.p1.radius = 19
+        self.p2.radius = 19
         self.distance = (self.p1.x - self.p2.x)**2 + (self.p1.y - self.p2.y)**2
 
     def test_draw(self):

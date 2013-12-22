@@ -29,11 +29,11 @@ class Force(object):
 
     def __init__(self, spaceobject2, spaceobject1, distancesqured):
         self.vector = (spaceobject2.x - spaceobject1.x, spaceobject2.y - spaceobject1.y )
-        self.startpos = [spaceobject1.x, spaceobject1.y]
+        self.startpos = [spaceobject1.x +spaceobject1.radius/4., spaceobject1.y + spaceobject1.radius/4]
         self.endpos = [0, 0]
         self.value = self.calculate(spaceobject1.mass, spaceobject2.mass, distancesqured)
-        self.endpos[0] = self.startpos[0] + self.vector[0]/ 8 * self.value
-        self.endpos[1] = self.startpos[1] + self.vector[1]/ 8 * self.value
+        self.endpos[0] = self.startpos[0] + self.vector[0]/ (10 * Force.gravitystrength) * 0.1 * math.fabs(self.value)
+        self.endpos[1] = self.startpos[1] + self.vector[1]/ (10 * Force.gravitystrength) * 0.1 *  math.fabs(self.value)
 
     def calculate(self, mass1, mass2, distance):
         """Calculate value of force on object"""
@@ -43,7 +43,7 @@ class Force(object):
     def draw(self, canvas, radius):
         Color(1,1,0)
         Line(points=(self.startpos[0] , self.startpos[1],self.endpos[0], self.endpos[1]), width=1)
-            # Line(points=(420,220 ,880, 400), width=1)
+            # Line(points=(420,220 ,880, 400), width=1
             # Triangle()
     def __str__(self):
         return " start %s endpod %s value %s " % (self.startpos, self.endpos, self.value)
@@ -134,20 +134,25 @@ class SpaceObject(SpaceObjectBase):
         # distancex = self.x - other.x
         # distancey = self.y - other.y
         # self.calcutateforces( distancex, distancey, other.spaceid)
-    # def __cleanup(self):
-    #     forcescopy = copy.deepcopy(self.forces)
-    #     for item in SpaceObject.mergedforces:
-    #         print "merged", item, self.forces
-    #         if item in self.forces.keys():
-    #             del forcescopy[item]
-    #     self.forces = forcescopy
+    def __cleanup(self):
+        forcescopy = copy.deepcopy(self.forces)
+        for item in SpaceObject.mergedforces:
+            print "merged", item, self.forces
+            if item in self.forces.keys():
+                try:
+                    del forcescopy[item]
+                except KeyError:
+                    pass
+        self.forces = copy.deepcopy(forcescopy)
+        
+
     def draw(self, canvas, width, height, zoom):
         width = width / 2.
         height = height / 2.
         tmpposx = width + self.x
         tmpposy = height +self.y
-        Logger.debug(" self%s " % len(self.forces.values()))
         Color(*self.color)
+        print len(self.forces.keys()), SpaceObject.objectcount 
         Ellipse(pos=( self.x, self.y ), size=(zoom * self.radius,zoom * self.radius))
         for force in self.forces.values():
             # if force.value > 1e-5: 
@@ -162,6 +167,7 @@ class SpaceObject(SpaceObjectBase):
         except KeyError:
             pass
         SpaceObject.mergedforces.append(other.spaceid)
+        self.__cleanup()
 
     def calcutateforces(self, distancesqured, other):
         # self.forces[other.spaceid] = 
@@ -185,6 +191,8 @@ class SpaceObject(SpaceObjectBase):
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and  self.radius == self.radius
 
+    def __del__(self):
+        SpaceObject.objectcount -= 1
 class SolarSystem(object):
     # __metaclass__ = Singleton
 
@@ -237,8 +245,8 @@ class SolarSystem(object):
                         #     items_merged.append(item2.spaceid)
                         #     tmp.remove(item2)
         self.system = tmp
+        SpaceObject.mergedforces = list()
         self.system = self.matmethod.calculate(self.system)
-        Logger.debug(" count %s " % (len(self.system)))
         return self
     def clear(self):
         self.system = list()

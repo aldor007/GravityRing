@@ -160,7 +160,6 @@ class Space(Widget):
         self.canvas.clear()
         with self.canvas:
             for item in Space.solarsystem.get_system():
-                Logger.debug(" system %s " % str(item))
                 item.draw(self.canvas, self.width, self.height, zoom)
 
     def stop_button_pressed(self):
