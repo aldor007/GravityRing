@@ -16,15 +16,12 @@ from simulation.numericmethods.rungekutta import RungeKutta
 from simulation.numericmethods.euler import Euler
 from simulation.numericmethods.verletvelocity import VerletVerlocity
 from utils import Singleton
-
-GRAVITYSTRENGTH = 14
-DENSITY = 0.001
+from simulation.conf.settings import appsettings
 
 
 
 class Force(object):
     """Class containg force value"""
-    gravitystrength = GRAVITYSTRENGTH
 
 
     def __init__(self, spaceobject2, spaceobject1, distancesqured):
@@ -32,17 +29,17 @@ class Force(object):
         self.startpos = [spaceobject1.x +spaceobject1.radius/4., spaceobject1.y + spaceobject1.radius/4]
         self.endpos = [0, 0]
         self.value = self.calculate(spaceobject1.mass, spaceobject2.mass, distancesqured)
-        self.endpos[0] = self.startpos[0] + self.vector[0]/ (10 * Force.gravitystrength) * 0.1 * math.fabs(self.value)
-        self.endpos[1] = self.startpos[1] + self.vector[1]/ (10 * Force.gravitystrength) * 0.1 *  math.fabs(self.value)
+        self.endpos[0] = self.startpos[0] + self.vector[0]/ (10 * appsettings['gravity']) * 0.1 * math.fabs(self.value)
+        self.endpos[1] = self.startpos[1] + self.vector[1]/ (10 * appsettings['gravity']) * 0.1 *  math.fabs(self.value)
 
     def calculate(self, mass1, mass2, distance):
         """Calculate value of force on object"""
-        self.value = float(Force.gravitystrength) * float(mass1)*float(mass2)/float(distance) if distance>1e-5 else 0.0
+        self.value = float(appsettings['gravity']) * float(mass1)*float(mass2)/float(distance) if distance>1e-5 else 0.0
         return self.value
 
-    def draw(self, canvas, radius):
+    def draw(self, canvas, shift, radius):
         Color(1,1,0)
-        Line(points=(self.startpos[0] , self.startpos[1],self.endpos[0], self.endpos[1]), width=1)
+        Line(points=(self.startpos[0] + shift[0] , self.startpos[1] + shift[1], self.endpos[0] + shift[0], self.endpos[1] + shift[1]), width=1)
             # Line(points=(420,220 ,880, 400), width=1
             # Triangle()
     def __str__(self):
@@ -52,9 +49,18 @@ class SpaceObjectBase(object):
     def __init__(self):
         self.pos = [0.0, 0.]
         self.velocity = [0., 0.]
-        self.mass = None
+        self.mass_val = None
         self.radius_val = None
+    @property
+    def position(self):
+        return self.pos
 
+    @position.setter
+    def position(self, value):
+        if type(value) is tuple:
+            self.pos = list(value)
+        else:
+            self.pos = value
     @property
     def x(self):
         return self.pos[0]
@@ -64,13 +70,21 @@ class SpaceObjectBase(object):
         self.pos[0] = value
 
     @property
+    def mass(self):
+        return self.mass_val
+    @mass.setter
+    def mass(self, value):
+        self.mass_val = value
+        self.radius_val= (3. * self.mass/(appsettings['density'] *4. * math.pi))**(1./3.)
+
+    @property
     def radius(self):
         return self.radius_val
 
     @radius.setter
     def radius(self, value):
         self.radius_val = value
-        self.mass = DENSITY*4.*math.pi*(self.radius_val**3.)/3.
+        self.mass_val = appsettings['density']*4.*math.pi*(self.radius_val**3.)/3.
     @property
     def y(self):
         return self.pos[1]
@@ -95,8 +109,9 @@ class SpaceObjectBase(object):
     def velocity_y(self, value):
         self.velocity[1] = value
 
-    def __str__(self):
-        return "postion=%s velocity=%s mass=%s  radius=%s" %(self.pos, self.velocity,self.mass, self.radius)
+    def __repr__(self):
+        return "Space postion=%s velocity=%s mass=%s  radius=%s" %(self.pos, self.velocity,self.mass, self.radius)
+
 
 
 
@@ -112,7 +127,7 @@ class SpaceObject(SpaceObjectBase):
         self.forces = {}
         self.radius = int(radius)
         self.color = get_random_color()
-        self.mass = DENSITY*4.*math.pi*(self.radius**3.)/3.
+        self.mass = appsettings['density']*4.*math.pi*(self.radius**3.)/3.
         # self.mass *= 10
         self.merged = False
         self.velocity = [0., 0.]
@@ -142,7 +157,7 @@ class SpaceObject(SpaceObjectBase):
         # distancex = self.x - other.x
         # distancey = self.y - other.y
         # self.calcutateforces( distancex, distancey, other.spaceid)
-    def __cleanup(self):
+    def cleanup(self):
         forcescopy = copy.deepcopy(self.forces)
         for item in SpaceObject.mergedforces:
             print "merged", item, self.forces
@@ -154,22 +169,21 @@ class SpaceObject(SpaceObjectBase):
         self.forces = copy.deepcopy(forcescopy)
         
 
-    def draw(self, canvas, width, height, zoom):
+    def draw(self, canvas, shift, width, height, zoom):
         # self.__cleanup()
         width = width / 2.
         height = height / 2.
         tmpposx = width + self.x
         tmpposy = height +self.y
         Color(*self.color)
-        Ellipse(pos=( self.x, self.y ), size=(zoom * self.radius,zoom * self.radius))
-        Logger.debug("forces %s " %  len(self.forces.keys()))
+        Ellipse(pos=(self.x + shift[0], self.y + shift[1]), size=(zoom * self.radius, zoom * self.radius))
         for force in self.forces.values():
             # if force.value > 1e-5: 
-            force.draw(canvas, self.radius)
+            force.draw(canvas, shift, self.radius)
 
     def merge(self, other):
-        self.mass += other.mass
-        self.radius = (3. * self.mass/(DENSITY *4. * math.pi))**(1./3.)
+        self.mass_val += other.mass
+        self.radius_val = (3. * self.mass/(appsettings['density'] *4. * math.pi))**(1./3.)
         other.merged = True
         try:
             del self.forces[other.spaceid]
@@ -199,24 +213,22 @@ class SpaceObject(SpaceObjectBase):
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y and  self.radius == self.radius
 
-    def __del__(self):
-        SpaceObject.objectcount -= 1
+    # def __del__(self):
+    #     SpaceObject.objectcount -= 1
 class SolarSystem(object):
     # __metaclass__ = Singleton
 
     def __init__(self, speed = 1):
-        self.gravity_val = GRAVITYSTRENGTH
         self.system = list()
-        self.matmethod = VerletVerlocity()
+        self.matmethods = { 'RungeKutta': RungeKutta(), 'VerletVerlocity': VerletVerlocity(), 'Euler': Euler()} 
+        VerletVerlocity()
     @property
     def gravity(self):
         return self.gravity_val
 
     @gravity.setter
     def gravity(self, value):
-        self.gravity_val = float(value)
-        GRAVITYSTRENGTH = float(value)
-        Force.gravitystrength = float(value)
+        appsettings['gravity'] = float(value)
 
     def update(self):
         items_merged = list()
@@ -237,24 +249,18 @@ class SolarSystem(object):
                             item2.merge(item)
                             items_merged.append(item.spaceid)
                             tmp.remove(item)
-                        if item.x > 3000 or item.y > 3000:
+                        if math.fabs(item.x) > 3000 or math.fabs(item.y) > 3000:
                             items_merged.append(item.spaceid)
                             tmp.remove(item)
-                        # if item.spaceid == 0:
-                        #     item.merge(item2)
-                        #     items_merged.append(item2.spaceid)
-                        #     tmp.remove(item2)
-                        # elif item2.spaceid == 0:
-                        #     item2.merge(item)
-                        #     items_merged.append(item.spaceid)
-                        #     tmp.remove(item)
-                        # else:
-                        #     item.merge(item)
-                        #     items_merged.append(item2.spaceid)
-                        #     tmp.remove(item2)
+                        item.cleanup()
         self.system = tmp
         SpaceObject.mergedforces = list()
-        self.system = self.matmethod.calculate(self.system)
+        try:
+            matmethod = self.matmethods[appsettings['numericmethods']]
+        except KeyError:
+            matmethod = self.matmethods['RungeKutta']
+
+        self.system = matmethod.calculate(self.system, appsettings['dt_in_numericmethod'])
         return self
     def points_in_system(self, x, y):
         tmp = SpaceObjectBase()

@@ -1,8 +1,8 @@
 #:kivy 1.0.9
-#
-<Settings>:
+#:import Button kivy.uix.button.Button
+<ConfigScreen>:
     text_input: text_input
-
+    space_widget: space_widget
     BoxLayout:
         orientation: 'vertical'
         BoxLayout:
@@ -16,17 +16,130 @@
                 on_release: root.show_save()
             Button:
                 text: 'Ok'
+                on_press: root.ok_pressed()
+            Button:
+                text: 'Cancel'
                 on_release: root.manager.current = 'menu'
-
         BoxLayout:
-            TextInput:
-                id: text_input
-                text: ''
+            BoxLayout:
+                # size_hint_x: None
+                orientation: "vertical"
+                size_hint_y: 1
+                TextInput:
+                    size_hint_y: 0.95
+                    id: text_input
+                    text: ''
+                    height: app.window.height
+                Button:
+                    size_hint_y: 0.05
+                    text: 'Praview'
+                    on_release: root.show_praview()
             Space:
                 index: 1000
+                id: space_widget
             # RstDocument:
             #     text: text_input.text
             #     show_errors: True
+
+
+
+
+# Setting dialog description
+<SettingDialog>:
+    gravity_slider: gravity_slider
+    density_slider: density_slider
+    speed_slider: speed_slider
+    zoom_slider: zoom_slider
+    gravity_label: gravity_label
+    density_label:density_label
+    speed_label: speed_label
+    zoom_label: zoom_label
+    numeric_combo: numeric_combo
+    numeric_label: numeric_label
+    BoxLayout:
+        orientation: 'vertical'
+        # padding: 10
+        # spacing: 10
+        
+        BoxLayout
+            Label:
+                text: 'Numeric Method:'
+            Label:
+                text: ''
+                id: numeric_label
+        ComboEdit:
+            size_hint: 0.8, 0.8
+            # pos_hint: {'center':(0.1, 0.1)}
+            height: 80
+            options:
+                [Button(text = str(x),\
+                size_hint_y=None,\
+                height=33)\
+                for x in ('RungeKutta', 'VerletVerlocity', 'Euler')]
+            id: numeric_combo
+        BoxLayout:
+            Label:
+                text: 'Gravity:'
+            Label:
+                text: ''
+                id: gravity_label
+        Slider:
+            id: gravity_slider
+        Widget:
+            heigth: 5
+        BoxLayout:
+            Label:
+                text: 'Density:'
+            Label:
+                text: ''
+                id: density_label
+        Slider:
+            id: density_slider
+            range: 0.000001, 10
+        Widget:
+            heigth: 5
+        BoxLayout:
+            Label:
+                text: 'Animation speed'
+            Label:
+                text: ''
+                id: speed_label
+        Slider:
+            id: speed_slider
+            range: 1, 100
+        BoxLayout:
+            Label:
+                text: 'Zoom'
+            Label:
+                text: ''
+                id: zoom_label
+        Slider:
+            id: zoom_slider
+            range: 1, 10
+        Widget:
+            heigth: 10
+        
+        BoxLayout:
+            spacing: 10
+        
+            Button:
+                text: 'Help'
+                bold: True
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
+                font_size: 15
+                size_hint: 1, 1.5
+                on_release: root.display_help_screen()
+                
+            Button:
+                id: close_button
+                text: 'Close'
+                bold: True
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
+                font_size: 15
+                size_hint: 1, 1.5
+                on_press: root.dismiss_parent()
 
 <LoadDialog>:
     BoxLayout:
@@ -93,8 +206,8 @@
             Button:
                 anchor_x: 'center'
                 anchor_y: 'center'
-                text: 'Settings'
-                on_press: root.manager.current = 'settings'
+                text: 'Load configuration'
+                on_press: root.manager.current = 'configscreen'
                 width: 70
                 height: 20
             Button:
@@ -113,7 +226,9 @@
 #     center_x: app.window.width/2
 #     id: spacewidget
 <GravityRing>:
-    
+    start_btn: start_btn
+    stop_btn: stop_btn
+    velocity_btn: velocity_btn
 	pos: self.pos
 	size: app.window.size
     # canvas.before:
@@ -151,7 +266,7 @@
             right: app.window.width
             top: app.window.height
 
-            Button:
+            ToggleButton:
                 text: 'start'
                 bold: True
                 font_size: 17
@@ -159,8 +274,8 @@
                 background_normal: 'graphics/button_normal.png'
                 background_down: 'graphics/button_down.png'
                 on_press: root.start_button_pressed()
-
-            Button:
+                id: start_btn
+            ToggleButton:
                 text: 'stop'
                 bold: True
                 font_size: 17
@@ -168,6 +283,7 @@
                 background_down: 'graphics/button_down.png'
                 on_press: root.stop_button_pressed()
                 size: 10. , 22
+                id: stop_btn
             Button:
                 text: 'Reset'
                 bold: True
@@ -176,9 +292,25 @@
                 background_down: 'graphics/button_down.png'
                 on_press: root.reset_button_pressed()
                 size: 10. , 22
+            Button:
+                text: 'Settings'
+                bold: True
+                font_size: 17
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
+                on_press: root.settings_button_pressed()
+                size: 10. , 22
+            Button:
+                text: 'Back'
+                bold: True
+                font_size: 17
+                background_normal: 'graphics/button_normal.png'
+                background_down: 'graphics/button_down.png'
+                on_release: root.manager.current = 'menu'
+                size: 10. , 22
             ToggleButton:
                 text: 'Draw velocity'
-                id: velocity_switch
+                id: velocity_btn
                 on_press: root.drawvelocity_button_pressed()
                 background_normal: 'graphics/button_normal.png'
                 background_down: 'graphics/button_down.png'

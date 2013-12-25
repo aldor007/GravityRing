@@ -63,33 +63,12 @@ def infixToRPN(tokens):
     return out
 
 
-class SpaceObjectBase(object):
-
-    def __init__(self):
-        self.position = (0, 0)
-        self.velocity = (0, 0)
-        self.mass = None
-        self.radius = None
-
-    def get(self, key):
-        if key is "position":
-            return (self.x, self.y)
-        elif key is "velocity":
-            return (self.velocity_x, self.velocity_y)
-        elif key is "x":
-            return self.x
-        elif kesy is "y":
-            return self.y
-    def __repr__(self):
-        return "postion=%s velocity=%s mass=%s radius=%s" %(self.position, self.velocity, self.mass, self.radius)
-    def __str__(self):
-        return "postion=%s velocity=%s mass=%s radius=%s" %(self.position, self.velocity, self.mass, self.radius)
 
 class ConfigParser(object):
     """Parsing yaml configuration file """
     __metaclass__ = Singleton
-    DEFINITIONSKEY = {'mass': 'mass', 'position': 'distance', "velocity": 'velocity'}
-    ATTRIBUTESKEY = ('mass', 'position', 'velocity')
+    DEFINITIONSKEY = {'mass': 'mass', 'x': 'distance', 'y': 'distance', 'position': 'distance', "velocity": 'velocity'}
+    ATTRIBUTESKEY = ('mass', 'x', 'y', 'velocity', 'position')
     OPERATORS = {
             '+': lambda x, y: x + y,
             '-': lambda x, y: x * y,
@@ -100,42 +79,51 @@ class ConfigParser(object):
         self.definitions = self.config.get_definitions()
         self.solarsystemconf = self.config.get_solarsystem()
         self.definitions['position'] = {}
-        self.definitions['position']['center'] = (0, 0)
-        self.system = list()
+        self.definitions['position']['center'] = (400, 400)
+        self.system = {}
 
     def parse(self):
         """Parse configuration for simulation 
            convert all knowed attributes to number values
            :return SpaceObject list """
+        self.system = {}
+        Logger.debug("read %s" % len(self.solarsystemconf.keys()))
         for name, spaceobjectconf in self.solarsystemconf.iteritems():
             spaceobj = SpaceObject(pos=[0, 0])
+            Logger.debug(" name %s" % name) 
             for attr in spaceobjectconf.keys():
                 if attr in ConfigParser.ATTRIBUTESKEY:
                     value = spaceobjectconf[attr]
                     Logger.debug("value  %s" %value)
                     if isinstance(value, str):
-                        if value in self.definitions[ConfigParser.DEFINITIONSKEY[attr]]:
-                            tmpvalue = self.definitions[ConfigParser.DEFINITIONSKEY[attr]][value]
-                        elif value in self.definitions[attr]:
-                            tmpvalue = self.definitions[attr][value]
-                        else:
-                            if re.match("\(.+?\,\s.+\)", value):
-                                regex = re.search("\((?P<x>.+?)\,\s?(?P<y>.+?)\)", value)
-                                tmpvalue = []
-                                for value_attr in regex.groups():
-                                    tmpvalue.append(self.resovle(value_attr))
+                        try:
+                            if value in self.definitions[ConfigParser.DEFINITIONSKEY[attr]]:
+                                tmpvalue = self.definitions[ConfigParser.DEFINITIONSKEY[attr]][value]
+                            elif value in self.definitions[attr]:
+                                tmpvalue = self.definitions[attr][value]
                             else:
-                                tmpvalue = self.resovle(value)
+                                if re.match("\(.+?\,\s.+\)", value):
+                                    regex = re.search("\((?P<x>.+?)\,\s?(?P<y>.+?)\)", value)
+                                    tmpvalue = []
+                                    for value_attr in regex.groups():
+                                        tmpvalue.append(self.resovle(value_attr))
+                                else:
+                                    tmpvalue = self.resovle(value)
+                        except KeyError:
+                            pass
                     else:
                         try:
                             tmpvalue = float(value)
                         except ValueError:
                             print("Error")
                             return
-                    setattr(spaceobj, attr, tmpvalue)
-            self.system.append(spaceobj)
+                    try:
+                        setattr(spaceobj, attr, tmpvalue)
+                    except AttributeError as err:
+                        Logger.warning(" error %s %s" % (err, attr))
+            self.system[name] = spaceobj
             Logger.debug("System = %s"%self.system)
-            return self.system
+        return self.system.values()
 
     def resovle(self, stringeq):
         """Resolve math statement"""
@@ -153,6 +141,8 @@ class ConfigParser(object):
                 except KeyError:
                     if item[0] in ConfigParser.DEFINITIONSKEY.values():
                         item = self.definitions[item[0]][item[1]]
+                    else:
+                        raise Exception
                 stack.append(item)
             elif item in ConfigParser.OPERATORS:
                 try:
@@ -160,17 +150,28 @@ class ConfigParser(object):
                     value2 = stack.pop()
                     stack.append(ConfigParser.OPERATORS[item](value1, value2))
                 except TypeError:
-                    if type(value1) is list:
+                    Logger.debug("IN %s %s   " %(value1, value2))
+                    if type(value1) is list or type(value1) is tuple:
                         listvalue = value1
                         othervalue = value2
-                    else:
+                        Logger.debug("IN value  %s %s   " %(listvalue, othervalue))
+                    elif type(value2) is list or type(value2) is tuple:
                         othervalue = value1
                         listvalue = value2
+                        Logger.debug("IN  value  %s %s   " %(listvalue, othervalue))
                     newvalue = []
-                    for propert in listvalue:
-                        newvalue.append(ConfigParser.OPERATORS[item](int(propert), int(othervalue)))
+                    try:
+                        for propert in listvalue:
+                            newvalue.append(ConfigParser.OPERATORS[item](int(propert), int(othervalue)))
+                    except UnboundLocalError:
+                        for number in range(0, 1):
+                            newvalue.append(ConfigParser.OPERATORS[item](int(value1[number]), int(value2[number])))
+
                     stack.append(newvalue)
             else:
-                item = float(item)
+                try:
+                    item = float(item)
+                except ValueError:
+                    pass
                 stack.append(item)
         return stack.pop()

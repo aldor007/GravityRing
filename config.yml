@@ -4,8 +4,8 @@ gravitystrength: 0.0001
 density: 0.001
 definitions:
     mass:
-        big: 1000
-        small: 10
+        big: 4000
+        small: 100
     distance:
         big: 200
         small: 300
@@ -16,11 +16,13 @@ solarsystem:
         radius: 20
     planet1:
         mass: "solar.mass * 2"
-        position: "solar.position + 10"
+        position: "solar.position + 400"
     planet2:
-        mass: "planet1.mass + 220"
-        position: (distance.big + 10, 40)
+        mass: "planet1.mass + 223"
+        x: "distance.big + 100"
+        y: 40 
     planet3:
         mass: "planet2.mass + mass.big"
-        postion: "solar.postion.x + 21", "solar.postion.y"
+        x: "solar.x + 44"
+        y: "solar.y - 88"
 

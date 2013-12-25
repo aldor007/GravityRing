@@ -7,7 +7,6 @@ from simulation.numericmethods.base import NumericMethod
 class Euler(NumericMethod):
     """Solving equation using method RungaKutta 4 degrea"""
     def __init__(self):
-        self.h = 1.0
         self.system = list()
 
     def calculate(self, system, dt=0.1):

@@ -61,8 +61,9 @@ class Config(object):
         filehandler.close()
         Config.loaded = True
 
-    def loadfromstream(self, yamlstring):
+    def loadfromstring(self, yamlstring):
         self.data = yaml.load(yamlstring, Loader=OrderedDictYAMLLoader)
+        print("+++++++++++++++", self.data)
         Config.loaded = True
     def get(self, key):
         """ Return specfy key"""

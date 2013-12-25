@@ -13,12 +13,17 @@ from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.screenmanager import Screen
 from kivy.properties import NumericProperty
 from kivy.properties import ReferenceListProperty
+from kivy.properties import ListProperty
 from kivy.properties import ObjectProperty
 from kivy.vector import Vector
 from random import randint
 from kivy.clock import Clock
 from kivy.logger import Logger
 from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.dropdown import DropDown
+from kivy.uix.textinput import TextInput
+from kivy.utils import boundary
 from kivy.uix.popup import Popup
 from simulation.conf import Config
 from simulation.conf.configparser import ConfigParser
@@ -26,10 +31,85 @@ from simulation.system.solarsystem import SolarSystem
 from simulation.system.solarsystem import SpaceObject
 from kivy.core.window import Window
 from kivy.factory import Factory
+from simulation.conf.settings import appsettings
+
+class ComboEdit(TextInput):
+
+    options = ListProperty(('', ))
+
+    def __init__(self, **kw):
+        ddn = self.drop_down = DropDown()
+        ddn.bind(on_select=self.on_select)
+        super(ComboEdit, self).__init__(**kw)
+        self.font_size = 15
+        self.height = 88
+
+    def on_options(self, instance, value):
+        ddn = self.drop_down
+        ddn.clear_widgets()
+        for widg in value:
+            widg.bind(on_release=lambda btn: ddn.select(btn.text))
+            ddn.add_widget(widg)
+
+    def on_select(self, *args):
+        self.text = args[1]
 
 
+    def on_touch_up(self, touch):
+        if touch.grab_current == self:
+            self.drop_down.open(self)
+        return super(ComboEdit, self).on_touch_up(touch)
 
 
+class SettingDialog(BoxLayout):
+    speed_slider = ObjectProperty(None)
+    gravity_slider = ObjectProperty(None)
+    density_slider = ObjectProperty(None)
+    gravity_label = ObjectProperty(None)
+    speed_label = ObjectProperty(None)
+    zoom_label = ObjectProperty(None)
+    numeric_label = ObjectProperty(None)
+    zoom_label = ObjectProperty(None)
+    root = ObjectProperty(None)
+    numeric_combo = ObjectProperty(None)
+    
+    def __init__(self, **kwargs):
+        super(SettingDialog, self).__init__(**kwargs)
+        self.gravity_label.text = str(appsettings['gravity'])
+        self.speed_label.text = str(appsettings['calculation_speed'])
+        self.density_label.text = str(appsettings['density'])
+        self.numeric_label.text = str(appsettings['numericmethod'])
+        self.numeric_combo.text = str(appsettings['numericmethod'])
+        self.zoom_label.text = str(appsettings['zoom'])
+        self.gravity_slider.bind(value=self.update_grvity)
+        self.density_slider.bind(value=self.update_density)
+        self.speed_slider.bind(value=self.update_speed)
+        self.zoom_slider.bind(value=self.update_zoom)
+        self.numeric_combo.bind(text=self.update_numeric)
+    def update_grvity(self, instance, value):
+        # write to app configs
+        appsettings['gravity'] = value
+        self.gravity_label.text = str(value)
+    
+    def update_numeric(self, instance, value):
+        appsettings['numericmethod'] = str(value)
+        self.numeric_label.text = str(value)
+
+    def update_zoom(self, instance, value):
+        appsettings['zoom'] = value
+        self.zoom_label.text = str(value)
+    def update_density(self, instance, value):
+        # write to app configs
+        appsettings['density'] = value
+        self.density_label.text = str(value)
+    def update_speed(self, instance, value):
+        # write to app configs
+        appsettings['calculation_speed'] = value
+        self.speed_label.text = str(value)
+    def dismiss_parent(self):
+        self.root.setting_popup.dismiss()
+        # self.root.start_button_pressed()
+    
 class LoadDialog(FloatLayout):
     """Dialog for loading configuration"""
     load = ObjectProperty(None)
@@ -52,11 +132,17 @@ class Menu(Screen):
     # def update(self, dt):
     #     self.logo.pos = (self.size[0]/2 - 405/2, self.size[1]/2 - 153/2 + 157 + math.sin(self.t * 3) * 10)
     #     self.t += dt
-class Settings(Screen):
+class ConfigScreen(Screen):
     """Screen for settings"""
     loadfile = ObjectProperty(None)
     savefile = ObjectProperty(None)
     text_input = ObjectProperty(None)
+    config = Config()
+    space_widget = ObjectProperty(None)
+
+    def __init__(self, *args, **kwargs):
+        super(ConfigScreen, self).__init__(*args, **kwargs)
+        Clock.schedule_interval(self.space_widget.draw, 1./appsettings['calculation_speed'])
 
     def dismiss_popup(self):
         """Close popups"""
@@ -78,10 +164,7 @@ class Settings(Screen):
         """load configuration file"""
         with open(os.path.join(path, filename[0])) as stream:
             self.text_input.text = stream.read()
-            config = Config().loadfromstring(self.text_input.text)
-            parser = ConfigParser(config)
-            parser.parse()
-            Space.solarsystem.system = parser.system()
+            self.__load_system(self.text_input.text)
         self.dismiss_popup()
 
     def save(self, path, filename):
@@ -89,6 +172,29 @@ class Settings(Screen):
         with open(os.path.join(path, filename), 'w') as stream:
             stream.write(self.text_input.text)
         self.dismiss_popup()
+    def __load_system(self, text):
+        ConfigScreen.config.loadfromstring(text)
+        parser = ConfigParser(ConfigScreen.config)
+        self.space_widget.solarsystem.system = parser.parse()
+        Space.solarsystem = self.space_widget.solarsystem
+ 
+    def __validate(self, value):
+        pass
+
+    def ok_pressed(self):
+        self.__load_system(self.text_input.text)
+        Space.solarsystem = self.space_widget.solarsystem
+        GravityRingApp.sm.current = 'gravity'
+
+    def show_praview(self):
+        try:
+            if self.text_input.text == '':
+                return
+            self.__validate(self.text_input.text)
+            self.__load_system(self.text_input.text)
+        except Exception as err:
+            Logger.warning("Parse error %s value %s" % (err, value))
+
 
 class Space(Widget):
     """ Main widget for simulation"""
@@ -117,7 +223,7 @@ class Space(Widget):
         """method triggered on touch event"""
         if self.collide_point(*touch.pos):
             touch.grab(self)
-            Logger.info("Touch %s %s" % (self.width, self.height))
+            Logger.info("Touch %s  %s %s" % (self.pos, self.width, self.height))
             self.move = [0, 0]
             if self.drawvelocity:
                 if Space.solarsystem.points_in_system(*touch.pos):
@@ -137,9 +243,12 @@ class Space(Widget):
                 else:
                     dxy = touch.dy
                 self.move[0] += touch.dx
-                self.move[1] += touch.dx
+                self.move[1] += touch.dy
                 if self.drawvelocity:
-                    touch.ud['line'].points += [touch.x, touch.y]
+                    try:
+                        touch.ud['line'].points += [touch.x, touch.y]
+                    except KeyError:
+                        pass
                 return True
             else:
                 pass
@@ -156,13 +265,13 @@ class Space(Widget):
                     if radius > 0:
                         Space.solarsystem.append(newobject)
                 else:
-                    newobject.radius = 1
+                    newobject.radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
                     tmpspace = list()
                     for spaceobject in Space.solarsystem.get_system():
                         if newobject.collision(spaceobject):
                             spaceobject.velocity_x = self.move[0]
                             spaceobject.velocity_y = self.move[1]
-                            Logger.debug("Draw velocity")
+                            Logger.debug("Draw velocity %s" %str(spaceobject))
                         tmpspace.append(spaceobject)
                     Space.solarsystem.system = tmpspace
                 touch.ungrab(self)
@@ -177,22 +286,23 @@ class Space(Widget):
 
     def draw(self, dt):
         """method for drawing new system """
-        zoom = 0.5
+        zoom = appsettings['zoom']
         self.canvas.clear()
         with self.canvas:
             for item in Space.to_draw:
                 item
             for item in Space.solarsystem.get_system():
-                item.draw(self.canvas, self.width, self.height, zoom)
+                item.draw(self.canvas, self.pos, self.width, self.height, zoom)
 
     def stop_button_pressed(self):
         """Stop updating system """
         Clock.unschedule(self.update)
 
+
     def start_button_pressed(self):
         """Start updating system """
         Logger.info("START")
-        Clock.schedule_interval(self.update, 1./60)
+        Clock.schedule_interval(self.update, 1./(appsettings['calculation_speed']-4))
 
         # self.solarsystem.append(SpaceObject(pos=(0, 0)))
         # self.solarsystem[0].center = self.center
@@ -208,8 +318,11 @@ class Space(Widget):
         Logger.debug("Draw ve %s" % Space.drawvelocity)
         if Space.drawvelocity:
             Clock.unschedule(self.draw)
+            Clock.unschedule(self.update)
         else:
-            Clock.schedule_interval(self.draw, 1./130)
+            Clock.schedule_interval(self.draw, 1./appsettings['calculation_speed'])
+            Clock.schedule_interval(self.update, 1./(appsettings['calculation_speed']+4))
+            self.canvas.clear()
 Factory.register('Space', Space)
 
 
@@ -219,13 +332,17 @@ class GravityRing(Screen):
     solarsystem = SolarSystem()
     spacewidget = ObjectProperty(None)
 
+    start_btn = ObjectProperty()
+    stop_btn = ObjectProperty()
+    velocity_btn = ObjectProperty()
     def __init__(self, **kwargs):
         super(GravityRing, self).__init__(**kwargs)
 
         self.spacewidget = Space(id="spacewidget")
         self.spacewidget.width = self.width - self.width/8.
         self.spacewidget.height = 55
-        Clock.schedule_interval(self.spacewidget.draw, 1. / 130.)
+        self.setting_popup = None
+        Clock.schedule_interval(self.spacewidget.draw, 1. / appsettings['calculation_speed'])
         self.add_widget(self.spacewidget, 500)
     # def on_pre_enter(self):
     # def __getattribute__(self, name):
@@ -235,11 +352,15 @@ class GravityRing(Screen):
     def stop_button_pressed(self):
         """Pass stop button pressed"""
         self.spacewidget.stop_button_pressed()
-
+        self.start_btn.state = 'normal'
+        self.velocity_btn.state = 'normal'
     def start_button_pressed(self):
         """Pass start button pressed"""
         self.spacewidget.start_button_pressed()
-
+        self.stop_btn.state = 'normal'
+        if self.spacewidget.drawvelocity:
+            self.drawvelocity_button_pressed()
+            self.velocity_btn.state = 'normal'
     def reset_button_pressed(self):
         """Pass reset  button pressed"""
         self.spacewidget.reset_button_pressed()
@@ -247,19 +368,38 @@ class GravityRing(Screen):
     def drawvelocity_button_pressed(self):
         """Pass reset  button pressed"""
         self.spacewidget.drawvelocity_button_pressed()
-
+        self.start_btn.state = 'normal'
+        self.stop_btn.state = 'normal'
+    def settings_button_pressed(self):
+        
+        # the first time the setting dialog is called, initialize its content.
+        if self.setting_popup is None:
+            
+            self.setting_popup = Popup(attach_to=self,
+                                       title='GravityRing Settings',
+                                       size_hint=(0.9, 0.8))
+            
+            self.setting_dialog = SettingDialog(root=self)
+            
+            self.setting_popup.content = self.setting_dialog
+        
+            # self.setting_dialog.speed_slider.value = boundary(appsettings['calculation_speed'], 1, 200)
+            # self.setting_dialog.gravity_slider.value = boundary(appsettings['gravity'],1, 250 )
+            # self.setting_dialog.density_slider.value = boundary(appsettings['density'],0.000001, 40)
+        self.spacewidget.stop_button_pressed()
+        self.setting_popup.open()
+        
 class GravityRingApp(App):
     """Aplication class"""
-
+    sm = ScreenManager()
     def build(self):
         """build application"""
         from kivy.base import EventLoop
         EventLoop.ensure_window()
         self.window = EventLoop.window
         self.gravity = GravityRing(name='gravity')
-        self.sm = ScreenManager()
         self.sm.add_widget(Menu(name='menu'))
-        self.sm.add_widget(Settings(name='settings'))
+        self.sm.add_widget(ConfigScreen(name='configscreen'))
         self.sm.add_widget(self.gravity)
         # gravity.update(1)
         # Clock.schedule_interval(self.gravity.update, 1. / 60)
@@ -273,5 +413,11 @@ class GravityRingApp(App):
         elif key in (282, 319): # SETTINGS
             self.sm.current = 'settings'
 
+    def build_config(self, config):
+        config.adddefaultsection('General')
+        config.setdefault('General', 'gravity', '40')
+        config.setdefault('General', 'density', '100')
+        config.setdefault('General', 'FirstStartup', 'Yes')
+        
 if __name__ in ('__main__', '__android__'):
     GravityRingApp().run()

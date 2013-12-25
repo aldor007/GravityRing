@@ -190,7 +190,10 @@ class ConfigParser(object):
                         except ValueError:
                             print("Error")
                             return
-                    setattr(spaceobj, attr, tmpvalue)
+                    try:
+                        setattr(spaceobj, attr, tmpvalue)
+                    except AttributeError as err:
+                        Logger.debug(" error %s" % err)
             self.system[name] = spaceobj
             logger.debug("System = %s"%self.system)
     def resovle(self, stringeq):
