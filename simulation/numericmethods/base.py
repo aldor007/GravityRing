@@ -4,6 +4,9 @@ import math
 class NumericMethod(object):
     """ Base class for solving equestion"""
 
+    def __init__(self, system=list()):
+        self.system = system
+
     def calculate(self, system, dt=1):
         """ Main fuction for calculate new postion of all object in  system"""
         raise NotImplemented("Virtual method")

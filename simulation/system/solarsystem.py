@@ -16,7 +16,7 @@ import copy
 from random import randint
 from simulation.numericmethods.rungekutta import RungeKutta
 from simulation.numericmethods.euler import Euler
-from simulation.numericmethods.verletvelocity import VerletVerlocity
+from simulation.numericmethods.verletvelocity import VerletVelocity
 from utils import Singleton
 from simulation.conf.settings import appsettings
 
@@ -39,17 +39,17 @@ class Force(object):
         self.value = float(appsettings['gravity']) * float(mass1)*float(mass2)/float(distance) if distance>1e-5 else 0.0
         return self.value
 
-    def draw(self, canvas, shift, radius):
-        Color(1,1,0)
+    def draw(self, shift, radius):
+        Color(1, 0, 0)
         Line(points=(self.startpos[0] + shift[0] , self.startpos[1] + shift[1], self.endpos[0] + shift[0], self.endpos[1] + shift[1]), width=1)
             # Line(points=(420,220 ,880, 400), width=1
             # Triangle()
     def __str__(self):
         return " start %s endpod %s value %s " % (self.startpos, self.endpos, self.value)
-class SpaceObjectBase(Widget):
+class SpaceObjectBase(object):
 
     def __init__(self):
-        super(SpaceObjectBase, self).__init__()
+        # super(SpaceObjectBase, self).__init__()
         self.pos = [0.0, 0.]
         self.velocity = [0., 0.]
         self.mass_val = None
@@ -65,13 +65,13 @@ class SpaceObjectBase(Widget):
             self.pos = list(value)
         else:
             self.pos = value
-    # @property
-    # def x(self):
-    #     return self.pos[0]
+    @property
+    def x(self):
+        return self.pos[0]
 
-    # @x.setter
-    # def x(self, value):
-    #     self.pos[0] = value
+    @x.setter
+    def x(self, value):
+        self.pos[0] = value
 
     @property
     def mass(self):
@@ -89,13 +89,13 @@ class SpaceObjectBase(Widget):
     def radius(self, value):
         self.radius_val = value
         self.mass_val = appsettings['density']*4.*math.pi*(self.radius_val**3.)/3.
-    # @property
-    # def y(self):
-    #     return self.pos[1]
+    @property
+    def y(self):
+        return self.pos[1]
 
-    # @y.setter
-    # def y(self, value):
-    #     self.pos[1] = value
+    @y.setter
+    def y(self, value):
+        self.pos[1] = value
 
     @property
     def velocity_x(self):
@@ -113,8 +113,8 @@ class SpaceObjectBase(Widget):
     def velocity_y(self, value):
         self.velocity[1] = value
 
-    # def __repr__(self):
-    #     return "Space postion=%s velocity=%s mass=%s  radius=%s" %(self.pos, self.velocity,self.mass, self.radius)
+    def __repr__(self):
+        return "Space postion=%s velocity=%s mass=%s  radius=%s" %(self.pos, self.velocity,self.mass, self.radius)
 
 
 
@@ -187,7 +187,7 @@ class SpaceObject(SpaceObjectBase):
                             self.radius, self.mass, self.show_label))
 
             # self.add_widget(self.label)
-    def draw(self, canvas, shift, width, height, zoom):
+    def draw(self, shift, width, height, zoom):
         # self.__cleanup()
 
         width = width / 2.
@@ -197,9 +197,8 @@ class SpaceObject(SpaceObjectBase):
         Color(*self.color)
         ellipse = Ellipse(pos=(self.x + shift[0], self.y + shift[1]), size=(zoom * self.radius, zoom * self.radius))
         for force in self.forces.values():
-            # if force.value > 1e-5: 
-            force.draw(canvas, shift, self.radius)
-        
+            force.draw( shift, self.radius)
+
     def merge(self, other):
         self.mass_val += other.mass
         self.radius_val = (3. * self.mass/(appsettings['density'] *4. * math.pi))**(1./3.)
@@ -220,17 +219,17 @@ class SpaceObject(SpaceObjectBase):
 
 
     def collision(self, other):
-        distancex = self.x - other.x
+        distancex = self.x + - other.x
         distancey = self.y - other.y
         distance = math.sqrt(distancex**2 + distancey**2)
         return distance <= (self.radius + other.radius)
 
-    # def __str__(self):
-    #     reprstr = super(SpaceObject, self).__str__()
-    #     reprstr += ' spaceid = %s' % self.spaceid
-    #     return reprstr
-    # def __eq__(self, other):
-    #     return self.x == other.x and self.y == other.y and  self.radius == self.radius
+    def __str__(self):
+        reprstr = super(SpaceObject, self).__str__()
+        reprstr += ' spaceid = %s' % self.spaceid
+        return reprstr
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and  self.radius == self.radius
 
     def decrease(self):
         Logger.debug("Odejmowanie")
@@ -242,15 +241,7 @@ class SolarSystem(object):
 
     def __init__(self, speed = 1):
         self.system = list()
-        self.matmethods = { 'RungeKutta': RungeKutta(), 'VerletVerlocity': VerletVerlocity(), 'Euler': Euler()} 
-        VerletVerlocity()
-    @property
-    def gravity(self):
-        return self.gravity_val
-
-    @gravity.setter
-    def gravity(self, value):
-        appsettings['gravity'] = float(value)
+        self.matmethods = { 'RungeKutta': RungeKutta(), 'VerletVelocity': VerletVelocity(), 'Euler': Euler()}
 
     def update(self):
         items_merged = list()
@@ -305,14 +296,6 @@ class SolarSystem(object):
     def __len__(self):
         return len(self.system)
 
-    def __getitem__(self, key):
-        return self.system[key]
-
-    def __setitem__(self, key, value):
-        self.system[key] = value
-
-    def __delitem__(self, key):
-        del self.system[key]
 
     def __iter__(self):
         return self.system.__iter__()

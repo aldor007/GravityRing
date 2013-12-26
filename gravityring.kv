@@ -49,11 +49,11 @@
     gravity_slider: gravity_slider
     density_slider: density_slider
     speed_slider: speed_slider
-    zoom_slider: zoom_slider
+    # zoom_slider: zoom_slider
     gravity_label: gravity_label
     density_label:density_label
     speed_label: speed_label
-    zoom_label: zoom_label
+    # zoom_label: zoom_label
     numeric_combo: numeric_combo
     numeric_label: numeric_label
     BoxLayout:
@@ -75,7 +75,7 @@
                 [Button(text = str(x),\
                 size_hint_y=None,\
                 height=33)\
-                for x in ('RungeKutta', 'VerletVerlocity', 'Euler')]
+                for x in ('RungeKutta', 'VerletVelocity', 'Euler')]
             id: numeric_combo
         BoxLayout:
             Label:
@@ -108,15 +108,15 @@
         Slider:
             id: speed_slider
             range: 1, 200
-        BoxLayout:
-            Label:
-                text: 'Zoom'
-            Label:
-                text: ''
-                id: zoom_label
-        Slider:
-            id: zoom_slider
-            range: 1, 10
+        # BoxLayout:
+        #     Label:
+        #         text: 'Zoom'
+        #     Label:
+        #         text: ''
+        #         id: zoom_label
+        # Slider:
+        #     id: zoom_slider
+        #     range: 1, 10
         Widget:
             heigth: 10
         

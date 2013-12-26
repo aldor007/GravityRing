@@ -19,8 +19,6 @@ OPERATORS = {
 '-' : (0, LEFT_ASSOC),
 '*' : (5, LEFT_ASSOC),
 '/' : (5, LEFT_ASSOC),
-'%' : (5, LEFT_ASSOC),
-'^' : (10, RIGHT_ASSOC)
 }
 
 def isOperator(token):

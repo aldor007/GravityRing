@@ -20,6 +20,12 @@ class  SpaceObjectTest(unittest.TestCase):
             setattr(test, item, value)
             ret_val = getattr(test, item)
             self.assertEqual(value, ret_val)
+    def test_dereace(self):
+        test = SpaceObject(pos=[1,1])
+        value = SpaceObject.objectcount
+        test.decrease()
+        self.assertEqual(SpaceObject.objectcount, value - 1)
+
     def test_str(self):
         test = SpaceObject(pos=(0,0))
         ret_val = str(test)
@@ -62,7 +68,7 @@ class  SpaceObjectTest(unittest.TestCase):
         patch_draw = patch('simulation.system.solarsystem.Ellipse', mock_draw)
         patch_draw.start()
         test = SpaceObject(pos=(0,0))
-        test.draw(None, 2, 3, 4)
+        test.draw([0, 0], 2, 3, 4)
         patch_draw.stop()
         self.assertTrue(mock_draw.called)
     def test_draw_forces(self):
@@ -75,7 +81,7 @@ class  SpaceObjectTest(unittest.TestCase):
         patch_draw.start()
         test = SpaceObject(pos=(0,0))
         test.forces[1] = mock_forces
-        test.draw(None, 2, 3, 4)
+        test.draw([0, 0], 2, 3, 4)
         patch_draw.stop()
         self.assertTrue(mock_draw.called)
         self.assertTrue(mock_forces.draw.called)

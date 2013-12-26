@@ -51,20 +51,12 @@ class Config(object):
         # else:
         #     self.loadfromstring(load)
 
-    def instance(cls):
-        return cls._instances[cls]
 
-    def load(self, filename):
-        """Function load yaml file to ordered dict """
-        filehandler = open(filename)
-        self.data = yaml.load(filehandler, Loader=OrderedDictYAMLLoader)
-        filehandler.close()
-        Config.loaded = True
 
     def loadfromstring(self, yamlstring):
         self.data = yaml.load(yamlstring, Loader=OrderedDictYAMLLoader)
-        print("+++++++++++++++", self.data)
         Config.loaded = True
+
     def get(self, key):
         """ Return specfy key"""
         #TODO: Add better docstring
@@ -78,18 +70,11 @@ class Config(object):
         """Return dict containing defintions for spaceobject"""
         return self.data['solarsystem']
 
-    def __len__(self):
-        return len(self.system)
 
     def __getitem__(self, key):
-        return self.system[key]
+        return self.data[key]
 
     def __setitem__(self, key, value):
-        self.system[key] = value
+        self.data[key] = value
 
-    def __delitem__(self, key):
-        del self.system[key]
-
-    def __iter__(self):
-        return self.system.__iter__()
 

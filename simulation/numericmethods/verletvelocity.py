@@ -3,10 +3,10 @@ import copy
 from kivy.logger import Logger
 from simulation.numericmethods.base import NumericMethod
 
-class VerletVerlocity(NumericMethod):
+class VerletVelocity(NumericMethod):
     """Solving equation using method RungaKutta 4 degrea"""
     def __init__(self):
-        self.system = list()
+        super(VerletVelocity, self).__init__()
 
     def calculate(self, system, dt=1):
         """Main function returning dict of new system"""

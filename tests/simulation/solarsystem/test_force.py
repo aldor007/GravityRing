@@ -1,6 +1,7 @@
 import unittest
 from simulation.system.solarsystem import Force
 from simulation.system.solarsystem import SpaceObjectBase
+from simulation.conf.settings import appsettings
 from mock import MagicMock, patch
 class ForceTest(unittest.TestCase):
     """Test case docstring"""
@@ -21,8 +22,8 @@ class ForceTest(unittest.TestCase):
         self.p1.mass = self.data['p1']['mass']
         self.p2.pos = self.data['p2']['pos']
         self.p2.mass = self.data['p2']['mass']
-        self.p1.radius = 19
-        self.p2.radius = 19
+        self.p1.radius_val = 19
+        self.p2.radius_val = 19
         self.distance = (self.p1.x - self.p2.x)**2 + (self.p1.y - self.p2.y)**2
 
     def test_draw(self):
@@ -30,7 +31,7 @@ class ForceTest(unittest.TestCase):
         patch_draw = patch('simulation.system.solarsystem.Line', mock_draw)
         patch_draw.start()
         test = Force(self.p1, self.p2, 1)
-        test.draw(None, 2)
+        test.draw([0, 0], 2)
         patch_draw.stop()
         self.assertTrue(mock_draw.called)
     def test_str(self):
@@ -42,8 +43,8 @@ class ForceTest(unittest.TestCase):
         self.assertEqual(test.value, 0)
 
     def test_init_calculate(self):
-        Force.gravitystrength = 10
+        appsettings['gravity'] = 10
         test = Force(self.p1, self.p2, self.distance)
-        result = Force.gravitystrength * self.data['p1']['mass'] * self.data['p2']['mass']/self.distance
+        result = appsettings['gravity'] * self.data['p1']['mass'] * self.data['p2']['mass']/self.distance
         self.assertEqual(test.value, result)
         self.assertEqual(test.calculate(self.p1.mass, self.p2.mass, self.distance), result)

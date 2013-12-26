@@ -1,30 +1,22 @@
 #
-__version__ = '0.1.1.1'
+__version__ = '0.1'
 import math
-import copy
 import os
 import kivy
 kivy.require('1.0.9')
-from random import random
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.graphics import Color, Ellipse, Line,Rectangle
-from kivy.uix.label import Label
+from kivy.graphics import Line
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.screenmanager import Screen
-from kivy.properties import NumericProperty
-from kivy.properties import ReferenceListProperty
 from kivy.properties import ListProperty
 from kivy.properties import ObjectProperty
-from kivy.vector import Vector
-from random import randint
 from kivy.clock import Clock
 from kivy.logger import Logger
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
-from kivy.utils import boundary
 from kivy.uix.popup import Popup
 from simulation.conf import Config
 from simulation.conf.configparser import ConfigParser
@@ -35,7 +27,7 @@ from kivy.factory import Factory
 from simulation.conf.settings import appsettings
 
 class ComboEdit(TextInput):
-
+    """Kivy version of ComboBox"""
     options = ListProperty(('', ))
 
     def __init__(self, **kw):
@@ -46,6 +38,7 @@ class ComboEdit(TextInput):
         self.height = 88
 
     def on_options(self, instance, value):
+        """Run when click on button"""
         ddn = self.drop_down
         ddn.clear_widgets()
         for widg in value:
@@ -53,6 +46,7 @@ class ComboEdit(TextInput):
             ddn.add_widget(widg)
 
     def on_select(self, *args):
+        """save change to TextInput"""
         self.text = args[1]
 
 
@@ -63,6 +57,9 @@ class ComboEdit(TextInput):
 
 
 class SettingDialog(BoxLayout):
+    """ Popup dialog containg propery for 
+    simulation
+    """
     speed_slider = ObjectProperty(None)
     gravity_slider = ObjectProperty(None)
     density_slider = ObjectProperty(None)
@@ -73,7 +70,7 @@ class SettingDialog(BoxLayout):
     zoom_label = ObjectProperty(None)
     root = ObjectProperty(None)
     numeric_combo = ObjectProperty(None)
-    
+
     def __init__(self, **kwargs):
         super(SettingDialog, self).__init__(**kwargs)
         self.gravity_label.text = str(appsettings['gravity'])
@@ -81,36 +78,41 @@ class SettingDialog(BoxLayout):
         self.density_label.text = str(appsettings['density'])
         self.numeric_label.text = str(appsettings['numericmethod'])
         self.numeric_combo.text = str(appsettings['numericmethod'])
-        self.zoom_label.text = str(appsettings['zoom'])
+        # self.zoom_label.text = str(appsettings['zoom'])
         self.gravity_slider.bind(value=self.update_grvity)
         self.density_slider.bind(value=self.update_density)
         self.speed_slider.bind(value=self.update_speed)
-        self.zoom_slider.bind(value=self.update_zoom)
+        # self.zoom_slider.bind(value=self.update_zoom)
         self.numeric_combo.bind(text=self.update_numeric)
+        #TODO: zoom
+
     def update_grvity(self, instance, value):
-        # write to app configs
+        """change gravity value """
         appsettings['gravity'] = value
         self.gravity_label.text = str(value)
-    
+
     def update_numeric(self, instance, value):
+        """change numeric method """
         appsettings['numericmethod'] = str(value)
         self.numeric_label.text = str(value)
 
-    def update_zoom(self, instance, value):
-        appsettings['zoom'] = value
-        self.zoom_label.text = str(value)
+    # def update_zoom(self, instance, value):
+    #     appsettings['zoom'] = value
+    #     self.zoom_label.text = str(value)
     def update_density(self, instance, value):
-        # write to app configs
+        """change density value"""
         appsettings['density'] = value
         self.density_label.text = str(value)
+
     def update_speed(self, instance, value):
-        # write to app configs
+        """ change speed of calculations and drawing"""
         appsettings['calculation_speed'] = value
         self.speed_label.text = str(value)
+
     def dismiss_parent(self):
+        """close popup"""
         self.root.setting_popup.dismiss()
-        # self.root.start_button_pressed()
-    
+
 class LoadDialog(FloatLayout):
     """Dialog for loading configuration"""
     load = ObjectProperty(None)
@@ -126,13 +128,7 @@ class SaveDialog(FloatLayout):
 class Menu(Screen):
     """Menu screen"""
     pass
-    # def on_enter(self):
-    #     self.t = 0.0
 
-
-    # def update(self, dt):
-    #     self.logo.pos = (self.size[0]/2 - 405/2, self.size[1]/2 - 153/2 + 157 + math.sin(self.t * 3) * 10)
-    #     self.t += dt
 class ConfigScreen(Screen):
     """Screen for settings"""
     loadfile = ObjectProperty(None)
@@ -179,7 +175,7 @@ class ConfigScreen(Screen):
         parser = ConfigParser(ConfigScreen.config)
         self.space_widget.solarsystem.system = parser.parse()
         Space.solarsystem = self.space_widget.solarsystem
- 
+
     def __validate(self, value):
         pass
 
@@ -290,9 +286,10 @@ class Space(Widget):
         self.canvas.clear()
         with self.canvas:
             for item in Space.solarsystem.get_system():
-                item.draw(self.canvas, self.pos, self.width, self.height, zoom)
+                item.draw(self.pos, self.width, self.height, zoom)
         for item in Space.solarsystem.get_system():
-            self.add_widget(item.return_label())
+            if item.show_label:
+                self.add_widget(item.return_label())
     def stop_button_pressed(self):
         """Stop updating system """
         Clock.unschedule(self.update)

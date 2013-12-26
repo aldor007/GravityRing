@@ -12,7 +12,7 @@ class  SpaceObjectBaseTest(unittest.TestCase):
 
     def test_property(self):
         test = SpaceObjectBase()
-        setters = ('x', 'y', 'velocity_x', 'velocity_y')
+        setters = ('x', 'y', 'velocity_x', 'velocity_y','position')
         for item in setters:
             value = 5 * 5 + random.randint(0,5)
             setattr(test, item, value)

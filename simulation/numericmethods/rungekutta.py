@@ -6,10 +6,9 @@ from simulation.numericmethods.base import NumericMethod
 from simulation.numericmethods.base import Coefficient
 
 class RungeKutta(NumericMethod):
-    """Solving equation using method RungaKutta 4 degrea"""
+    """Solving equation using method RungeKutta 4 degrea"""
     def __init__(self):
-        self.dt = 1.0
-        self.system = list()
+        super(RungeKutta, self).__init__()
 
     def calculate(self, system, dt=0.1):
         """Main function returning dict of new system"""
@@ -43,7 +42,6 @@ class RungeKutta(NumericMethod):
 
     def intermediate(self, planet, t, dt):
         """caclculate intermediate"""
-        tmp = copy.deepcopy(planet)
         k1 = self.evaluate(planet, Coefficient(0., 0., 0., 0.), t, 0)
         k2 = self.evaluate(planet, k1, t, dt*0.5)
         k3 = self.evaluate(planet, k2, t, dt*0.5)
