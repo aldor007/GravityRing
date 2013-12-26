@@ -123,18 +123,18 @@
         BoxLayout:
             spacing: 10
         
-            Button:
-                text: 'Help'
-                bold: True
-                background_normal: 'graphics/button_normal.png'
-                background_down: 'graphics/button_down.png'
-                font_size: 15
-                size_hint: 1, 1.5
-                on_release: root.display_help_screen()
+            # Button:
+            #     text: 'Help'
+            #     bold: True
+            #     background_normal: 'graphics/button_normal.png'
+            #     background_down: 'graphics/button_down.png'
+            #     font_size: 15
+            #     size_hint: 1, 1.5
+            #     on_release: root.display_help_screen()
                 
             Button:
                 id: close_button
-                text: 'Close'
+                text: 'Ok'
                 bold: True
                 background_normal: 'graphics/button_normal.png'
                 background_down: 'graphics/button_down.png'
@@ -211,13 +211,13 @@
                 on_press: root.manager.current = 'configscreen'
                 width: 70
                 height: 20
-            # Button:
-            #     anchor_x: 'center'
-            #     anchor_y: 'center'
-            #     text: 'Exit'
-            #     on_press: root.manager.current = 'settings'
-            #     width: 70
-            #     height: 20
+            Button:
+                anchor_x: 'center'
+                anchor_y: 'center'
+                text: 'Exit'
+                on_press: app.stop()
+                width: 70
+                height: 20
             BoxLayout:
         BoxLayout:
 # <Space>:

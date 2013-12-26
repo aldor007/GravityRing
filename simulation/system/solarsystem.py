@@ -12,6 +12,7 @@ from simulation.numericmethods.rungekutta import RungeKutta
 from simulation.numericmethods.euler import Euler
 from simulation.numericmethods.verletvelocity import VerletVelocity
 from simulation.conf.settings import appsettings
+from utils import ListBase
 
 
 
@@ -282,7 +283,7 @@ class SpaceObject(SpaceObjectBase):
         if SpaceObject.objectcount < 0:
             SpaceObject.objectcount = 0
 
-class SolarSystem(object):
+class SolarSystem(ListBase):
     """Class containing list of spaceobjects"""
     # __metaclass__ = Singleton
 
@@ -292,6 +293,16 @@ class SolarSystem(object):
         self.system = list()
         self.matmethods = {
                 'RungeKutta': RungeKutta(), 'VerletVelocity': VerletVelocity(), 'Euler': Euler()}
+
+    @property
+    def data(self):
+        """Basic property getter"""
+        return self.system
+
+    @data.setter
+    def data(self, value):
+        """Basic property setter"""
+        self.system = value
 
     def update(self):
         """Method runned periodicly. It refres system list.
@@ -322,9 +333,10 @@ class SolarSystem(object):
         self.system = tmp
         SpaceObject.mergedforces = list()
         try:
-            matmethod = self.matmethods[appsettings['numericmethods']]
+            matmethod = self.matmethods[appsettings['numericmethod']]
         except KeyError:
             matmethod = self.matmethods['RungeKutta']
+            Logger.warning("Defualt method %s " % appsettings['numericmethod'])
 
         self.system = matmethod.calculate(self.system, appsettings['dt_in_numericmethod'])
         return self

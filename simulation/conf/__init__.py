@@ -3,6 +3,7 @@ import yaml
 import yaml.constructor
 from collections import OrderedDict
 from utils import Singleton
+from utils import ListBase
 
 
 class OrderedDictYAMLLoader(yaml.Loader):
@@ -41,19 +42,33 @@ class OrderedDictYAMLLoader(yaml.Loader):
             mapping[key] = value
         return mapping
 
-class Config(object):
+class Config(ListBase):
     """Class cointains configuration of system"""
     __metaclass__ = Singleton
-    def __init__(self ):
-        self.data = OrderedDict()
 
+    def __init__(self):
+        self.data_val = OrderedDict()
+
+
+    @property
+    def data(self):
+        """Basic property getter"""
+        return self.data_val
+
+    @data.setter
+    def data(self, value):
+        """Basic property setter"""
+
+        if type(value) is list:
+            raise ValueError("Unsuported type!")
+        self.data_val = value
 
     def loadfromstring(self, yamlstring):
         """Method load yaml-string and save data in order to data varible
 
         :param yamlstring: string containing yaml.
         """
-        self.data = yaml.load(yamlstring, Loader=OrderedDictYAMLLoader)
+        self.data_val = yaml.load(yamlstring, Loader=OrderedDictYAMLLoader)
         Config.loaded = True
 
     def get(self, key):
@@ -62,27 +77,27 @@ class Config(object):
         :param key: string.
         :returns: value of key.
         """
-        return self.data[key]
+        return self.data_val[key]
 
     def get_definitions(self):
         """ Return: dict containing definitions variables
 
         :returns: dict.
         """
-        return self.data['definitions']
+        return self.data_val['definitions']
 
     def get_solarsystem(self):
         """Return dict containing defintions for spaceobject
 
         :returns: dict
         """
-        return self.data['solarsystem']
+        return self.data_val['solarsystem']
 
 
-    def __getitem__(self, key):
-        return self.data[key]
+    # def __getitem__(self, key):
+    #     return self.data[key]
 
-    def __setitem__(self, key, value):
-        self.data[key] = value
+    # def __setitem__(self, key, value):
+    #     self.data[key] = value
 
 

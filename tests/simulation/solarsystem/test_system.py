@@ -22,3 +22,9 @@ class SolarSystemTest(unittest.TestCase):
         system.append("ala")
         self.assertEqual(len(system), 1)
 
+    def test_setdata(self):
+        test = SolarSystem()
+        value_set = list("aldor")
+        test.data = value_set
+        self.assertEqual(test.data, value_set)
+

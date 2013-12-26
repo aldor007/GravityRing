@@ -1,7 +1,8 @@
 """Module containing class for settings of simulation"""
 from utils import Singleton
+from utils import ListBase
 
-class Settings(object):
+class Settings(ListBase):
     """Class containing settings of simulation"""
     __metaclass__ = Singleton
 
@@ -15,6 +16,19 @@ class Settings(object):
                 'calculation_speed': 100,
                 'zoom': 1.0
                 }
+
+    @property
+    def data(self):
+        """Basic property getter"""
+        return self.__settings
+
+    @data.setter
+    def data(self, value):
+        """Basic property setter"""
+        if type(value) is list:
+            raise ValueError("Unsuported type")
+
+        self.__settings = value
 
     def get(self, key, default=None):
         """ Return value of key

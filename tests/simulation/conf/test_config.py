@@ -59,4 +59,14 @@ solarsystem:
         test.loadfromstring(self.data)
         items = test.get_solarsystem()
         self.assertTrue('solar' in items.keys())
+    def test_setdata(self):
+        test = Config()
+        value_set = {"aldor": "dwa"}
+        test.data = value_set
+        self.assertEqual(test.data, value_set)
+    def test_setdataerr(self):
+        test = Config()
+        value_set = ["aldor", "dwa"]
+        self.assertRaises(ValueError, setattr,test, 'data',  value_set)
+
 

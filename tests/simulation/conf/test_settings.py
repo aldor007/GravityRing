@@ -3,7 +3,8 @@ from simulation.conf.settings import Settings
 
 class SettingsTest(unittest.TestCase):
     """Test case docstring"""
-
+    def setUp(self):
+        self.start_value = Settings().data
     def test_get(self):
         settings = Settings()
         ret = settings.get('niema', 2)
@@ -23,4 +24,15 @@ class SettingsTest(unittest.TestCase):
         settings['densitystr'] = '0.001'
         ret = settings.get('densitystr')
         self.assertEqual(float('0.001'), ret)
-
+    def test_setdata(self):
+        test = Settings()
+        value_set = {"aldor": "dwa"}
+        test.data = value_set
+        self.assertEqual(test.data, value_set)
+        Settings().data = self.start_value
+    def test_setdataerr(self):
+        test = Settings()
+        value_set = ["aldor", "dwa"]
+        self.assertRaises(ValueError, setattr,test, 'data',  value_set)
+    def tearDown(self):
+        Settings().data = self.start_value
