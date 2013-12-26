@@ -31,7 +31,7 @@ class ForceTest(unittest.TestCase):
         patch_draw = patch('simulation.system.solarsystem.Line', mock_draw)
         patch_draw.start()
         test = Force(self.p1, self.p2, 1)
-        test.draw([0, 0], 2)
+        test.draw([0, 0])
         patch_draw.stop()
         self.assertTrue(mock_draw.called)
     def test_str(self):

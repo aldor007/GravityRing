@@ -174,7 +174,7 @@ class ConfigScreen(Screen):
         ConfigScreen.config.loadfromstring(text)
         parser = ConfigParser(ConfigScreen.config)
         self.space_widget.solarsystem.system = parser.parse()
-        Space.solarsystem = self.space_widget.solarsystem
+        # Space.solarsystem = self.space_widget.solarsystem
 
     def __validate(self, value):
         pass
@@ -193,6 +193,8 @@ class ConfigScreen(Screen):
         except Exception as err:
             Logger.warning("Parse error %s value %s" % (err, value))
 
+    def on_enter(self):
+        Space.solarsystem.clear()
 
 class Space(Widget):
     """ Main widget for simulation"""
@@ -342,7 +344,8 @@ class GravityRing(Screen):
         self.add_widget(self.spacewidget, 500)
 
     def on_enter(self):
-        self.solarsystem.clear()
+        Space.solarsystem.clear()
+
     def stop_button_pressed(self):
         """Pass stop button pressed"""
         self.spacewidget.stop_button_pressed()

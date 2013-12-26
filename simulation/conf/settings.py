@@ -1,10 +1,12 @@
+"""Module containing class for settings of simulation"""
 from utils import Singleton
-from kivy.logger import Logger
 
 class Settings(object):
+    """Class containing settings of simulation"""
     __metaclass__ = Singleton
 
     def __init__(self):
+        """Set default value of settings """
         self.__settings = {
                 'dt_in_numericmethod': 1.0,
                 'numericmethod': 'RungeKutta',
@@ -15,6 +17,11 @@ class Settings(object):
                 }
 
     def get(self, key, default=None):
+        """ Return value of key
+        :param key: string
+        :param default: default value if key doesn't exist
+        :returns: value of key
+        """
         try:
             return self.__settings[key]
         except KeyError:

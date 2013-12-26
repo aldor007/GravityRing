@@ -1,3 +1,4 @@
+""" Module for reading yaml file containing configuration"""
 import yaml
 import yaml.constructor
 from collections import OrderedDict
@@ -41,33 +42,40 @@ class OrderedDictYAMLLoader(yaml.Loader):
         return mapping
 
 class Config(object):
-    """Class cointains all config for applications"""
+    """Class cointains configuration of system"""
     __metaclass__ = Singleton
-    loaded = False
     def __init__(self ):
         self.data = OrderedDict()
-        # if fromfile:
-        #     self.load(data)
-        # else:
-        #     self.loadfromstring(load)
-
 
 
     def loadfromstring(self, yamlstring):
+        """Method load yaml-string and save data in order to data varible
+
+        :param yamlstring: string containing yaml.
+        """
         self.data = yaml.load(yamlstring, Loader=OrderedDictYAMLLoader)
         Config.loaded = True
 
     def get(self, key):
-        """ Return specfy key"""
-        #TODO: Add better docstring
+        """ Return specify key value
+
+        :param key: string.
+        :returns: value of key.
+        """
         return self.data[key]
 
     def get_definitions(self):
-        """ Return: dict containing definitions variables"""
+        """ Return: dict containing definitions variables
+
+        :returns: dict.
+        """
         return self.data['definitions']
 
     def get_solarsystem(self):
-        """Return dict containing defintions for spaceobject"""
+        """Return dict containing defintions for spaceobject
+
+        :returns: dict
+        """
         return self.data['solarsystem']
 
 

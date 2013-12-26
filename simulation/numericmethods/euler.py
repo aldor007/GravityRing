@@ -2,12 +2,17 @@
 from simulation.numericmethods.base import NumericMethod
 
 class Euler(NumericMethod):
-    """Solving equation using method RungaKutta 4 degrea"""
+    """Solving equation using Euler method"""
     def __init__(self):
         super(Euler, self).__init__()
 
     def calculate(self, system, dt=0.1):
-        """Main function returning dict of new system"""
+        """Main function returning dict of new system
+        
+        :param system: list of spaceobjects.
+        :param dt: time step.
+        :returns: new list of spaceobjects.
+        """
         self.system = system
         new_system = list()
         for planet in self.system:

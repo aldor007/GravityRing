@@ -1,18 +1,23 @@
 """ Base module for numeric calculations"""
-import math
 
 class NumericMethod(object):
     """ Base class for solving equestion"""
 
-    def __init__(self, system=list()):
-        self.system = system
+    def __init__(self,):
+        self.system = []
 
     def calculate(self, system, dt=1):
-        """ Main fuction for calculate new postion of all object in  system"""
-        raise NotImplemented("Virtual method")
+        """ Main fuction for calculate new postion of all object in  system
+
+            :raises: NotImplementedError
+        """
+        raise NotImplementedError("Virtual method")
 
     def acceleration(self, planet1):
-        """method for calculate acceleration"""
+        """method for calculate acceleration
+        :param planet1: SpaceObject for what there will be calcuations
+        :returns: (ax, ay)
+        """
         ax, ay = 0.0, 0.0
         for planet2 in self.system:
             if planet1.spaceid == planet2.spaceid:
