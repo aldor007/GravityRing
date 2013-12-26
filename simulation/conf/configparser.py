@@ -121,6 +121,7 @@ class ConfigParser(object):
                         setattr(spaceobj, attr, tmpvalue)
                     except AttributeError as err:
                         Logger.warning(" error %s %s" % (err, attr))
+            spaceobj.name = name
             self.system[name] = spaceobj
             Logger.debug("System = %s"%self.system)
         return self.system.values()

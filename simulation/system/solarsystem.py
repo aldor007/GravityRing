@@ -1,10 +1,12 @@
 import kivy
 kivy.require('1.0.9')
 from random import random
-from kivy.graphics import Color, Ellipse, Line, Triangle
+from kivy.graphics import Color, Ellipse, Line
+from kivy.core.image import Image
+from kivy.uix.label import Label
 from kivy.app import App
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty
+from kivy.properties import ListProperty
 from kivy.properties import ReferenceListProperty
 from kivy.properties import ObjectProperty
 from kivy.utils import get_random_color
@@ -44,13 +46,15 @@ class Force(object):
             # Triangle()
     def __str__(self):
         return " start %s endpod %s value %s " % (self.startpos, self.endpos, self.value)
-class SpaceObjectBase(object):
+class SpaceObjectBase(Widget):
 
     def __init__(self):
+        super(SpaceObjectBase, self).__init__()
         self.pos = [0.0, 0.]
         self.velocity = [0., 0.]
         self.mass_val = None
         self.radius_val = None
+        self.name = None
     @property
     def position(self):
         return self.pos
@@ -61,13 +65,13 @@ class SpaceObjectBase(object):
             self.pos = list(value)
         else:
             self.pos = value
-    @property
-    def x(self):
-        return self.pos[0]
+    # @property
+    # def x(self):
+    #     return self.pos[0]
 
-    @x.setter
-    def x(self, value):
-        self.pos[0] = value
+    # @x.setter
+    # def x(self, value):
+    #     self.pos[0] = value
 
     @property
     def mass(self):
@@ -85,13 +89,13 @@ class SpaceObjectBase(object):
     def radius(self, value):
         self.radius_val = value
         self.mass_val = appsettings['density']*4.*math.pi*(self.radius_val**3.)/3.
-    @property
-    def y(self):
-        return self.pos[1]
+    # @property
+    # def y(self):
+    #     return self.pos[1]
 
-    @y.setter
-    def y(self, value):
-        self.pos[1] = value
+    # @y.setter
+    # def y(self, value):
+    #     self.pos[1] = value
 
     @property
     def velocity_x(self):
@@ -109,8 +113,8 @@ class SpaceObjectBase(object):
     def velocity_y(self, value):
         self.velocity[1] = value
 
-    def __repr__(self):
-        return "Space postion=%s velocity=%s mass=%s  radius=%s" %(self.pos, self.velocity,self.mass, self.radius)
+    # def __repr__(self):
+    #     return "Space postion=%s velocity=%s mass=%s  radius=%s" %(self.pos, self.velocity,self.mass, self.radius)
 
 
 
@@ -131,6 +135,9 @@ class SpaceObject(SpaceObjectBase):
         # self.mass *= 10
         self.merged = False
         self.velocity = [0., 0.]
+        self.name = 'spaceobject_' + str(self.spaceid)
+        self.show_label = False
+        self.label = None
 
     def __deepcopy__(self, memo):
         dpcpy = SpaceObject((0,0))
@@ -143,6 +150,7 @@ class SpaceObject(SpaceObjectBase):
         dpcpy.velocity = list(self.velocity)
         dpcpy.radius = int(self.radius)
         dpcpy.merged = self.merged
+        dpcpy.show_label = self.show_label
         memo[id(dpcpy)] = dpcpy
         return dpcpy
 
@@ -167,20 +175,31 @@ class SpaceObject(SpaceObjectBase):
                 except KeyError:
                     pass
         self.forces = copy.deepcopy(forcescopy)
-        
 
+    def return_label(self ):
+        # self.canvas.clear()
+        # if self.show_label:
+        tmp = [0, 0]
+        tmp[0] = self.x + self.radius
+        tmp[1] = self.y + self.radius
+        return Label(pos=tmp, text="Name  %s\n postion=[%2.f, %2.f] velocity=[%2.f, %2.f] radius=%2.f mass=%2.f showlabel=%s" \
+                        %(self.name, self.x, self.y, self.velocity_x, self.velocity_y,
+                            self.radius, self.mass, self.show_label))
+
+            # self.add_widget(self.label)
     def draw(self, canvas, shift, width, height, zoom):
         # self.__cleanup()
+
         width = width / 2.
         height = height / 2.
         tmpposx = width + self.x
         tmpposy = height +self.y
         Color(*self.color)
-        Ellipse(pos=(self.x + shift[0], self.y + shift[1]), size=(zoom * self.radius, zoom * self.radius))
+        ellipse = Ellipse(pos=(self.x + shift[0], self.y + shift[1]), size=(zoom * self.radius, zoom * self.radius))
         for force in self.forces.values():
             # if force.value > 1e-5: 
             force.draw(canvas, shift, self.radius)
-
+        
     def merge(self, other):
         self.mass_val += other.mass
         self.radius_val = (3. * self.mass/(appsettings['density'] *4. * math.pi))**(1./3.)
@@ -206,15 +225,18 @@ class SpaceObject(SpaceObjectBase):
         distance = math.sqrt(distancex**2 + distancey**2)
         return distance <= (self.radius + other.radius)
 
-    def __str__(self):
-        reprstr = super(SpaceObject, self).__str__()
-        reprstr += ' spaceid = %s' % self.spaceid
-        return reprstr
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y and  self.radius == self.radius
+    # def __str__(self):
+    #     reprstr = super(SpaceObject, self).__str__()
+    #     reprstr += ' spaceid = %s' % self.spaceid
+    #     return reprstr
+    # def __eq__(self, other):
+    #     return self.x == other.x and self.y == other.y and  self.radius == self.radius
 
-    # def __del__(self):
-    #     SpaceObject.objectcount -= 1
+    def decrease(self):
+        Logger.debug("Odejmowanie")
+        SpaceObject.objectcount = SpaceObject.objectcount - 1
+        if SpaceObject.objectcount < 0:
+            SpaceObject.objectcount = 0
 class SolarSystem(object):
     # __metaclass__ = Singleton
 
@@ -269,7 +291,6 @@ class SolarSystem(object):
         tmp.radius = 1
         for item in self.system:
             if item.collision(tmp):
-                del tmp
                 return True
         return False
     def clear(self):

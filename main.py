@@ -9,6 +9,7 @@ from random import random
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.graphics import Color, Ellipse, Line,Rectangle
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.screenmanager import Screen
 from kivy.properties import NumericProperty
@@ -143,6 +144,7 @@ class ConfigScreen(Screen):
     def __init__(self, *args, **kwargs):
         super(ConfigScreen, self).__init__(*args, **kwargs)
         Clock.schedule_interval(self.space_widget.draw, 1./appsettings['calculation_speed'])
+        self.space_widget.solarsystem.clear()
 
     def dismiss_popup(self):
         """Close popups"""
@@ -201,7 +203,7 @@ class Space(Widget):
     solarsystem = SolarSystem()
     config = Config()
     drawvelocity = False
-    to_draw = list()
+    fix_label = 0
     def start_space(self):
         """start simulation of object"""
         sun = SpaceObject(pos=(420, 220), radius=100)
@@ -229,19 +231,12 @@ class Space(Widget):
                 if Space.solarsystem.points_in_system(*touch.pos):
                     with self.canvas:
                         touch.ud['line'] = Line(points=(touch.x, touch.y))
-                        Space.to_draw.append(touch.ud['line'])
-                
             return True
         return False
     def on_touch_move(self, touch):
         """method triggered on touch move event"""
         if self.collide_point(*touch.pos):
             if touch.grab_current is self:
-                dxy = 1
-                if touch.dx:
-                    dxy = touch.dx
-                else:
-                    dxy = touch.dy
                 self.move[0] += touch.dx
                 self.move[1] += touch.dy
                 if self.drawvelocity:
@@ -259,6 +254,13 @@ class Space(Widget):
             if touch.grab_current is self:
             # I receive my grabbed touch, I must ungrab it!
                 newobject = SpaceObject(pos=(touch.x, touch.y))
+                for spaceobject in Space.solarsystem.get_system():
+                    if newobject.collision(spaceobject):
+                        spaceobject.show_label = not spaceobject.show_label
+                        spaceobject.decrease()
+                        Logger.debug("Draw label %s" % spaceobject.show_label)
+                        touch.ungrab(self)
+                        return True
                 if not self.drawvelocity:
                     radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
                     newobject.radius = radius
@@ -266,14 +268,12 @@ class Space(Widget):
                         Space.solarsystem.append(newobject)
                 else:
                     newobject.radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
-                    tmpspace = list()
                     for spaceobject in Space.solarsystem.get_system():
                         if newobject.collision(spaceobject):
                             spaceobject.velocity_x = self.move[0]
                             spaceobject.velocity_y = self.move[1]
                             Logger.debug("Draw velocity %s" %str(spaceobject))
-                        tmpspace.append(spaceobject)
-                    Space.solarsystem.system = tmpspace
+                            spaceobject.decrease()
                 touch.ungrab(self)
             else:
             # it's a normal touch
@@ -289,11 +289,10 @@ class Space(Widget):
         zoom = appsettings['zoom']
         self.canvas.clear()
         with self.canvas:
-            for item in Space.to_draw:
-                item
             for item in Space.solarsystem.get_system():
                 item.draw(self.canvas, self.pos, self.width, self.height, zoom)
-
+        for item in Space.solarsystem.get_system():
+            self.add_widget(item.return_label())
     def stop_button_pressed(self):
         """Stop updating system """
         Clock.unschedule(self.update)
@@ -344,11 +343,9 @@ class GravityRing(Screen):
         self.setting_popup = None
         Clock.schedule_interval(self.spacewidget.draw, 1. / appsettings['calculation_speed'])
         self.add_widget(self.spacewidget, 500)
-    # def on_pre_enter(self):
-    # def __getattribute__(self, name):
-    #     """Proxy method for passing calls"""
-    #     return getattr(self.spacewidget, name)
 
+    def on_enter(self):
+        self.solarsystem.clear()
     def stop_button_pressed(self):
         """Pass stop button pressed"""
         self.spacewidget.stop_button_pressed()
@@ -372,7 +369,6 @@ class GravityRing(Screen):
         self.stop_btn.state = 'normal'
     def settings_button_pressed(self):
         
-        # the first time the setting dialog is called, initialize its content.
         if self.setting_popup is None:
             
             self.setting_popup = Popup(attach_to=self,
@@ -383,9 +379,6 @@ class GravityRing(Screen):
             
             self.setting_popup.content = self.setting_dialog
         
-            # self.setting_dialog.speed_slider.value = boundary(appsettings['calculation_speed'], 1, 200)
-            # self.setting_dialog.gravity_slider.value = boundary(appsettings['gravity'],1, 250 )
-            # self.setting_dialog.density_slider.value = boundary(appsettings['density'],0.000001, 40)
         self.spacewidget.stop_button_pressed()
         self.setting_popup.open()
         

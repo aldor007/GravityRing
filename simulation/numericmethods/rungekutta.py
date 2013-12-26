@@ -22,10 +22,10 @@ class RungeKutta(NumericMethod):
             intermediate = self.intermediate(planet, 0, dt)
 
             dervative = self.growth(*intermediate, dt=dt)
-            planet.pos[0] += dervative[0]*dt
-            planet.pos[1] += dervative[1]*dt
-            planet.velocity[0] += dervative[2]*dt
-            planet.velocity[1]+= dervative[3]*dt
+            planet.x += dervative[0]*dt
+            planet.y += dervative[1]*dt
+            planet.velocity_x += dervative[2]*dt
+            planet.velocity_y += dervative[3]*dt
             new_system.append(planet)
         return new_system
 
