@@ -1,7 +1,7 @@
 import unittest
 import math
 from simulation.numericmethods.base import NumericMethod
-from  simulation.system.solarsystem import SpaceObject, SolarSystem
+from  simulation.system.spacesystem import SpaceObject, SpaceSystem
 from simulation.conf.settings import appsettings
 
 class NumericMethodTest(unittest.TestCase):
@@ -11,9 +11,9 @@ class NumericMethodTest(unittest.TestCase):
         self.base_num = NumericMethod()
 
     def test_calculate(self):
-        self.assertRaises(Exception, self.base_num.calculate, system = SolarSystem())
+        self.assertRaises(Exception, self.base_num.calculate, system = SpaceSystem())
     def test_accelaration(self):
-        system = SolarSystem()
+        system = SpaceSystem()
         p1 = SpaceObject(pos=(10.0, 10.0))
         p1.mass = 100.0
         p1.radius_val = 100.0

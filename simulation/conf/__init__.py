@@ -86,13 +86,17 @@ class Config(ListBase):
         """
         return self.data_val['definitions']
 
-    def get_solarsystem(self):
+    def get_system(self):
         """Return dict containing defintions for spaceobject
 
         :returns: dict
         """
-        return self.data_val['solarsystem']
-
+        ret_val = {}
+        try:
+            ret_val = self.data_val['system']
+        except KeyError:
+            print("Empty config")
+        return ret_val
 
     # def __getitem__(self, key):
     #     return self.data[key]

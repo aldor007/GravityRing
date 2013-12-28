@@ -17,22 +17,22 @@ definitions:
     distance:
         big: 200
         small: 300
-solarsystem:
-    solar:
+spacesystem:
+    space:
         mass: "mass.big"
         position: "center"
         radius: 20
     planet1:
-        mass: "solar.mass * 2"
-        position: "solar.position + 400"
+        mass: "space.mass * 2"
+        position: "space.position + 400"
     planet2:
         mass: "planet1.mass + 223"
         x: "distance.big + 100"
         y: 40 
     planet3:
         mass: "planet2.mass + mass.big"
-        x: "solar.x + 44"
-        y: "solar.y - 88"
+        x: "space.x + 44"
+        y: "space.y - 88"
 
         """
     def test_singelton(self):
@@ -54,11 +54,17 @@ solarsystem:
         test.loadfromstring(self.data)
         definition = test.get_definitions()
         self.assertTrue('mass' in definition.keys())
-    def test_getsolarsystem(self):
+    def test_getspacesystem(self):
         test = Config()
         test.loadfromstring(self.data)
-        items = test.get_solarsystem()
-        self.assertTrue('solar' in items.keys())
+        items = test.get_system()
+        self.assertTrue('space' in items.keys())
+    def test_getspacesystem_err(self):
+        test = Config()
+        test.data = {}
+        items = test.get_system()
+        self.assertTrue(len(items.keys()))
+        test.loadfromstring(self.data)
     def test_setdata(self):
         test = Config()
         value_set = {"aldor": "dwa"}

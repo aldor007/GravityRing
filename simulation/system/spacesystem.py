@@ -274,6 +274,10 @@ class SpaceObject(SpaceObjectBase):
         reprstr += ' spaceid = %s' % self.spaceid
         return reprstr
     def __eq__(self, other):
+        if self is other:
+            return True
+        if type(other) is not SpaceObject:
+            return False
         return self.x == other.x and self.y == other.y and  self.radius == self.radius
 
     def decrease(self):
@@ -283,12 +287,12 @@ class SpaceObject(SpaceObjectBase):
         if SpaceObject.objectcount < 0:
             SpaceObject.objectcount = 0
 
-class SolarSystem(ListBase):
+class SpaceSystem(ListBase):
     """Class containing list of spaceobjects"""
     # __metaclass__ = Singleton
 
     def __init__(self):
-        """Init method for SolarSystem class
+        """Init method for SpaceSystem class
         it define 3 numericmethods"""
         self.system = list()
         self.matmethods = {
@@ -362,11 +366,11 @@ class SolarSystem(ListBase):
         self.system = list()
 
     def append(self, spaceobject):
-        """Metgod for adding spaceobject to list"""
+        """Method for adding spaceobject to list"""
         self.system.append(spaceobject)
 
     def get_system(self):
-        """Metho for getting system list"""
+        """Method for getting system list"""
         return self.system
 
     def __len__(self):

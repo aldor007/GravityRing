@@ -18,10 +18,13 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
+
+import yaml
+
 from simulation.conf import Config
 from simulation.conf.configparser import ConfigParser
-from simulation.system.solarsystem import SolarSystem
-from simulation.system.solarsystem import SpaceObject
+from simulation.system.spacesystem import SpaceSystem
+from simulation.system.spacesystem import SpaceObject
 from kivy.core.window import Window
 from kivy.factory import Factory
 from simulation.conf.settings import appsettings
@@ -141,7 +144,15 @@ class ConfigScreen(Screen):
     def __init__(self, *args, **kwargs):
         super(ConfigScreen, self).__init__(*args, **kwargs)
         Clock.schedule_interval(self.space_widget.draw, 1./appsettings['calculation_speed'])
-        self.space_widget.solarsystem.clear()
+        self.space_widget.spacesystem.clear()
+        self.space_widget.bind(on_touch_up=self.add_spaceobject)
+
+    def add_spaceobject(self, obj, value):
+        # self.space_widget.on_touch_up(touch)
+        Logger.debug("TODO: add object to input")
+        # if len(self.space_widget.spacesystem) >0:
+        #     self.text_input.text = str(yaml.dump(self.space_widget.spacesystem.data))
+
 
     def dismiss_popup(self):
         """Close popups"""
@@ -172,61 +183,64 @@ class ConfigScreen(Screen):
             stream.write(self.text_input.text)
         self.dismiss_popup()
     def __load_system(self, text):
-        ConfigScreen.config.loadfromstring(text)
-        parser = ConfigParser(ConfigScreen.config)
-        self.space_widget.solarsystem.system = parser.parse()
-        # Space.solarsystem = self.space_widget.solarsystem
-
+        self.config.loadfromstring(text)
+        parser = ConfigParser(self.config)
+        self.space_widget.spacesystem.clear()
+        self.space_widget.spacesystem.system = parser.parse()
+        Logger.debug("Len system %s parser %s  "% (len(self.space_widget.spacesystem), len(parser.parse())))
     def __validate(self, value):
         pass
 
     def ok_pressed(self):
         self.__load_system(self.text_input.text)
-        GravityRing.solarsystem = self.space_widget.solarsystem
+        GravityRing.spacesystem = self.space_widget.spacesystem
         GravityRingApp.sm.current = 'gravity'
 
     def show_praview(self):
         try:
             if self.text_input.text == '':
+                Logger.warning("Skiping show praview!")
                 return
             self.__validate(self.text_input.text)
             self.__load_system(self.text_input.text)
+            Logger.debug("Cofnig %s" % str(self.config.data))
         except Exception as err:
-            Logger.warning("Parse error %s value %s" % (err, value))
+            Logger.warning("Parse error %s " % (err))
 
     def on_enter(self):
-        self.space_widget.solarsystem.clear()
+        self.space_widget.spacesystem.clear()
         self.space_widget.draw_label = False
+        Clock.schedule_interval(self.space_widget.draw, 1. / appsettings['calculation_speed'])
 
     def on_leave(self):
         self.space_widget.draw_label = True
+        Clock.unschedule(self.space_widget.draw)
 
 class Space(Widget):
     """ Main widget for simulation"""
-    config = Config()
     drawvelocity = False
     draw_label = True
 
     def __init__(self, **kwargs):
         super(Space, self).__init__(**kwargs)
-        self.solarsystem = SolarSystem()
+        self.spacesystem = SpaceSystem()
     def start_space(self):
         """start simulation of object"""
         pass
         # sun = SpaceObject(pos=(420, 220), radius=100)
         # sun.mass = 14
         # sun.spaceid = 0
-        # Space.solarsystem = SolarSystem()
-       # self..solarsystem.append(sun)
+        # Space.spacesystem = SpacSystem()
+       # self..spacesystem.append(sun)
        #  spaceob = SpaceObject(pos=(10,30), radius = 5)
        #  spaceob1 = SpaceObject(pos=(20,60), radius = 5)
        #  spaceob1.velocity_x = 3.0
        #  spaceob1.velocity_y = 6.0
        #  # spaceob.mass = 0.013
-       #  Space.solarsystem.append(spaceob)
-       #  Space.solarsystem.append(spaceob1)
-        # Space.solarsystem.append(SpaceObject(pos=(822,201),radius = 3))
-        # Space.solarsystem.append(SpaceObject(pos=(822,401),radius = 3))
+       #  Space.spacesystem.append(spaceob)
+       #  Space.spacesystem.append(spaceob1)
+        # Space.spacesystem.append(SpaceObject(pos=(822,201),radius = 3))
+        # Space.spacesystem.append(SpaceObject(pos=(822,401),radius = 3))
 
     def on_touch_down(self, touch):
         """method triggered on touch event"""
@@ -235,7 +249,7 @@ class Space(Widget):
             Logger.info("Touch %s  %s %s" % (self.pos, self.width, self.height))
             self.move = [0, 0]
             if self.drawvelocity:
-                if self.solarsystem.points_in_system(*touch.pos):
+                if self.spacesystem.points_in_system(*touch.pos):
                     with self.canvas:
                         touch.ud['line'] = Line(points=(touch.x, touch.y))
             return True
@@ -260,8 +274,8 @@ class Space(Widget):
         if self.collide_point(*touch.pos):
             if touch.grab_current is self:
             # I receive my grabbed touch, I must ungrab it!
-                newobject = SpaceObject(pos=(touch.x, touch.y))
-                for spaceobject in self.solarsystem.get_system():
+                newobject = SpaceObject(pos=(touch.x - self.pos[0], touch.y - self.pos[1]))
+                for spaceobject in self.spacesystem.get_system():
                     if newobject.collision(spaceobject):
                         spaceobject.show_label = not spaceobject.show_label
                         spaceobject.decrease()
@@ -272,10 +286,10 @@ class Space(Widget):
                     radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
                     newobject.radius = radius
                     if radius > 0:
-                        self.solarsystem.append(newobject)
+                        self.spacesystem.append(newobject)
                 else:
                     newobject.radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
-                    for spaceobject in self.solarsystem.get_system():
+                    for spaceobject in self.spacesystem.get_system():
                         if newobject.collision(spaceobject):
                             spaceobject.velocity_x = self.move[0]
                             spaceobject.velocity_y = self.move[1]
@@ -289,16 +303,16 @@ class Space(Widget):
 
     def update(self, dt):
         """Main method for updating """
-        self.solarsystem.update()
+        self.spacesystem.update()
     def draw(self, dt):
         """method for drawing new system """
         zoom = appsettings['zoom']
         self.canvas.clear()
         with self.canvas:
-            for item in self.solarsystem.get_system():
+            for item in self.spacesystem.get_system():
                 item.draw(self.pos, self.width, self.height, zoom)
         if self.draw_label:
-            for item in self.solarsystem.get_system():
+            for item in self.spacesystem.get_system():
                 if item.show_label:
                     self.add_widget(item.return_label())
     def stop_button_pressed(self):
@@ -311,9 +325,9 @@ class Space(Widget):
         Logger.info("START")
         Clock.schedule_interval(self.update, 1./(appsettings['calculation_speed']-4))
 
-        # self.solarsystem.append(SpaceObject(pos=(0, 0)))
-        # self.solarsystem[0].center = self.center
-        # self.solarsystem[0].velocity = Vector(4, 0).rotate(randint(0, 360))
+        # self.spacesystem.append(SpaceObject(pos=(0, 0)))
+        # self.spacesystem[0].center = self.center
+        # self.spacesystem[0].velocity = Vector(4, 0).rotate(randint(0, 360))
     def stop_updating_system(self):
         Clock.unschedule(self.draw)
         Clock.unschedule(self.update)
@@ -322,7 +336,7 @@ class Space(Widget):
         """Reset space widget """
         self.stop_button_pressed()
         self.canvas.clear()
-        self.solarsystem.clear()
+        self.spacesystem.clear()
         self.start_space()
     def drawvelocity_button_pressed(self):
         Space.drawvelocity = not Space.drawvelocity
@@ -340,7 +354,7 @@ Factory.register('Space', Space)
 class GravityRing(Screen):
     """Main screen application class"""
 
-    solarsystem = SolarSystem()
+    spacesystem = SpaceSystem()
     spacewidget = ObjectProperty(None)
 
     start_btn = ObjectProperty()
@@ -356,8 +370,8 @@ class GravityRing(Screen):
         self.add_widget(self.spacewidget, 500)
 
     def on_enter(self):
-        if len(GravityRing.solarsystem) > 0:
-            self.spacewidget.solarsystem = GravityRing.solarsystem
+        if len(GravityRing.spacesystem) > 0:
+            self.spacewidget.spacesystem = GravityRing.spacesystem
         Clock.schedule_interval(self.spacewidget.draw, 1. / appsettings['calculation_speed'])
 
     def on_leave(self):

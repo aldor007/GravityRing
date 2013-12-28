@@ -1,6 +1,6 @@
 import unittest
 from simulation.numericmethods.verletvelocity import VerletVelocity
-from simulation.system.solarsystem import SpaceObject
+from simulation.system.spacesystem import SpaceObject
 from mock import patch, MagicMock
 class VerletVelocityTest(unittest.TestCase):
     """Test case docstring"""

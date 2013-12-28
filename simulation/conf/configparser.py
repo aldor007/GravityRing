@@ -6,7 +6,7 @@ import re
 from kivy.logger import Logger
 # import logging
 from utils import Singleton
-from simulation.system.solarsystem import SpaceObject
+from simulation.system.spacesystem import SpaceObject
 
 # logging.basicConfig(level=logging.INFO)
 # logger = logging.getLogger(__name__)
@@ -86,7 +86,6 @@ def infixToRPN(tokens):
 
 class ConfigParser(object):
     """Class for parsing yaml configuration file """
-    __metaclass__ = Singleton
     DEFINITIONSKEY = {'mass': 'mass', 'x': 'distance', 'y': 'distance', 'position': 'distance', "velocity": 'velocity'}
     ATTRIBUTESKEY = ('mass', 'x', 'y', 'velocity', 'position')
     OPERATORS = {
@@ -100,7 +99,7 @@ class ConfigParser(object):
         :param config: config class where is dict to parse."""
         self.config = config
         self.definitions = self.config.get_definitions()
-        self.solarsystemconf = self.config.get_solarsystem()
+        self.spacesystemconf = self.config.get_system()
         self.definitions['position'] = {}
         self.definitions['position']['center'] = (400, 400)
         self.system = {}
@@ -111,8 +110,8 @@ class ConfigParser(object):
 
            :returns: SpaceObject list """
         self.system = {}
-        # Logger.debug("read %s" % len(self.solarsystemconf.keys()))
-        for name, spaceobjectconf in self.solarsystemconf.iteritems():
+        # Logger.debug("read %s" % len(self.spacesystemconf.keys()))
+        for name, spaceobjectconf in self.spacesystemconf.iteritems():
             spaceobj = SpaceObject(pos=[0, 0])
             # Logger.debug(" name %s" % name) 
             for attr in spaceobjectconf.keys():
@@ -130,7 +129,7 @@ class ConfigParser(object):
                                     regex = re.search(r"\((?P<x>.+?)\,\s?(?P<y>.+?)\)", value)
                                     tmpvalue = []
                                     for value_attr in regex.groups():
-                                        tmpvalue.append(self.resovle(value_attr))
+                                        tmpvalue.append(self.resolve(value_attr))
                                 else:
                                     tmpvalue = self.resolve(value)
                         except KeyError:
@@ -147,7 +146,7 @@ class ConfigParser(object):
                         Logger.warning(" error %s %s" % (err, attr))
             spaceobj.name = name
             self.system[name] = spaceobj
-            Logger.debug("System = %s"%self.system)
+        Logger.debug("System = %s"%self.system)
         return self.system.values()
 
     def resolve(self, stringeq):
@@ -164,7 +163,7 @@ class ConfigParser(object):
             if re.match(r"\w+\.\w+", item):
                 item = item.split('.')
                 try:
-                    # item = self.solarsystem[item[0]].get(item[1])
+                    # item = self.spacesystem[item[0]].get(item[1])
                     item = getattr(self.system[item[0]], item[1])
                 except KeyError:
                     if item[0] in ConfigParser.DEFINITIONSKEY.values():

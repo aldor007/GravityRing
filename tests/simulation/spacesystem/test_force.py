@@ -1,6 +1,6 @@
 import unittest
-from simulation.system.solarsystem import Force
-from simulation.system.solarsystem import SpaceObjectBase
+from simulation.system.spacesystem import Force
+from simulation.system.spacesystem import SpaceObjectBase
 from simulation.conf.settings import appsettings
 from mock import MagicMock, patch
 class ForceTest(unittest.TestCase):
@@ -28,7 +28,7 @@ class ForceTest(unittest.TestCase):
 
     def test_draw(self):
         mock_draw = MagicMock()
-        patch_draw = patch('simulation.system.solarsystem.Line', mock_draw)
+        patch_draw = patch('simulation.system.spacesystem.Line', mock_draw)
         patch_draw.start()
         test = Force(self.p1, self.p2, 1)
         test.draw([0, 0])

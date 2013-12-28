@@ -1,6 +1,6 @@
 import unittest
 from simulation.numericmethods.euler import Euler
-from simulation.system.solarsystem import SpaceObject
+from simulation.system.spacesystem import SpaceObject
 from mock import patch, MagicMock
 class EulerTest(unittest.TestCase):
     """Test case docstring"""

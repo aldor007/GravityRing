@@ -23,22 +23,22 @@ definitions:
     distance:
         big: 200
         small: 300
-solarsystem:
-    solar:
+spacesystem:
+    space:
         mass: "mass.big"
         position: "center"
         radius: 20
     planet1:
-        mass: "solar.mass * 2"
-        position: "solar.position + 400"
+        mass: "space.mass * 2"
+        position: "space.position + 400"
     planet2:
         mass: "planet1.mass + 223"
         x: "distance.big + 100"
         y: 40 
     planet3:
         mass: "planet2.mass + mass.big"
-        x: "solar.x + 44"
-        y: "solar.y - 88"
+        x: "space.x + 44"
+        y: "space.y - 88"
 
 """)
         self.confparser = ConfigParser(config)
@@ -48,5 +48,5 @@ solarsystem:
     def test_parse(self):
         result = self.confparser.parse()
         for item in result:
-            if item.name == 'solar':
+            if item.name == 'space':
                 self.assertEqual(item.mass, 4000)

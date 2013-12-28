@@ -1,5 +1,5 @@
 import unittest
-from simulation.system.solarsystem import SpaceObjectBase
+from simulation.system.spacesystem import SpaceObjectBase
 import random
 
 class  SpaceObjectBaseTest(unittest.TestCase):

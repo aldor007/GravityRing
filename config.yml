@@ -9,7 +9,7 @@ definitions:
     distance:
         big: 200
         small: 300
-solarsystem:
+system:
     solar:
         mass: "mass.small"
         position: (420, 220)

@@ -2,7 +2,7 @@ import unittest
 import random
 from mock import MagicMock, patch
 import copy
-from simulation.system.solarsystem import SpaceObject
+from simulation.system.spacesystem import SpaceObject
 
 class  SpaceObjectTest(unittest.TestCase):
     """Test case docstring"""
@@ -65,7 +65,7 @@ class  SpaceObjectTest(unittest.TestCase):
         self.assertEqual(len(test1.forces.keys()), 0)
     def test_draw_noforces(self):
         mock_draw = MagicMock()
-        patch_draw = patch('simulation.system.solarsystem.Ellipse', mock_draw)
+        patch_draw = patch('simulation.system.spacesystem.Ellipse', mock_draw)
         patch_draw.start()
         test = SpaceObject(pos=(0,0))
         test.draw([0, 0], 2, 3, 4)
@@ -77,7 +77,7 @@ class  SpaceObjectTest(unittest.TestCase):
         mock_forces.draw = MagicMock()
         mock_forces.draw.return_value = True
 
-        patch_draw = patch('simulation.system.solarsystem.Ellipse', mock_draw)
+        patch_draw = patch('simulation.system.spacesystem.Ellipse', mock_draw)
         patch_draw.start()
         test = SpaceObject(pos=(0,0))
         test.forces[1] = mock_forces
