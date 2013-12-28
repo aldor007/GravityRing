@@ -23,7 +23,7 @@ definitions:
     distance:
         big: 200
         small: 300
-spacesystem:
+system:
     space:
         mass: "mass.big"
         position: "center"

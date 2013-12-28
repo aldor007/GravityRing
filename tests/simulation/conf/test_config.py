@@ -17,7 +17,7 @@ definitions:
     distance:
         big: 200
         small: 300
-spacesystem:
+system:
     space:
         mass: "mass.big"
         position: "center"
@@ -63,7 +63,7 @@ spacesystem:
         test = Config()
         test.data = {}
         items = test.get_system()
-        self.assertTrue(len(items.keys()))
+        self.assertTrue(len(items.keys())==0)
         test.loadfromstring(self.data)
     def test_setdata(self):
         test = Config()
