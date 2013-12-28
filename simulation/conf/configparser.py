@@ -132,7 +132,7 @@ class ConfigParser(object):
                                     for value_attr in regex.groups():
                                         tmpvalue.append(self.resovle(value_attr))
                                 else:
-                                    tmpvalue = self.resovle(value)
+                                    tmpvalue = self.resolve(value)
                         except KeyError:
                             pass
                     else:
@@ -150,7 +150,7 @@ class ConfigParser(object):
             Logger.debug("System = %s"%self.system)
         return self.system.values()
 
-    def resovle(self, stringeq):
+    def resolve(self, stringeq):
         """Resolve math statement
         :param stringeq: string containing equation to calculate
         :return: number, value of equation
