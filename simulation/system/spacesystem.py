@@ -217,9 +217,9 @@ class SpaceObject(SpaceObjectBase):
         tmp = [0, 0]
         tmp[0] = self.x + self.radius
         tmp[1] = self.y + self.radius
-        return Label(pos=tmp, text="Name  %s\n postion=[%2.f, %2.f] velocity=[%2.f, %2.f] radius=%2.f mass=%2.f showlabel=%s" \
+        return Label(pos=tmp, text="Name %s\n postion=[%2.f,%2.f] velocity=[%2.f,%2.f] radius=%2.f mass=%2.f" \
                         %(self.name, self.x, self.y, self.velocity_x, self.velocity_y,
-                            self.radius, self.mass, self.show_label))
+                            self.radius, self.mass))
 
     def draw(self, shift, width, height, zoom):
         """Method draw SpaceObject on canvas"""
