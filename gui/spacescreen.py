@@ -15,6 +15,7 @@ from kivy.uix.popup import Popup
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.dropdown import DropDown
 from kivy.uix.textinput import TextInput
+from kivy.graphics import Color
 
 from simulation.system.spacesystem import SpaceSystem
 from simulation.system.spacesystem import SpaceObject
@@ -110,6 +111,7 @@ class Space(Widget):
     """ Main widget for simulation"""
     drawvelocity = False
     draw_label = True
+    start_points = [0, 0]
 
     def __init__(self, **kwargs):
         super(Space, self).__init__(**kwargs)
@@ -140,8 +142,7 @@ class Space(Widget):
             self.move = [0, 0]
             if self.drawvelocity:
                 if self.spacesystem.points_in_system(*touch.pos):
-                    with self.canvas:
-                        touch.ud['line'] = Line(points=(touch.x, touch.y))
+                    self.start_points = touch.pos
             return True
         return False
     def on_touch_move(self, touch):
@@ -150,9 +151,12 @@ class Space(Widget):
             if touch.grab_current is self:
                 self.move[0] += touch.dx
                 self.move[1] += touch.dy
-                if self.drawvelocity:
+                if self.drawvelocity and self.start_points is not None:
                     try:
-                        touch.ud['line'].points += [touch.x, touch.y]
+                        self.canvas.after.clear()
+                        with self.canvas.after:
+                            Color(0, 1, 0)
+                            Line(points=(self.start_points[0], self.start_points[1], touch.x, touch.y))
                     except KeyError:
                         pass
                 return True
@@ -181,10 +185,12 @@ class Space(Widget):
                     newobject.radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
                     for spaceobject in self.spacesystem.get_system():
                         if newobject.collision(spaceobject):
-                            spaceobject.velocity_x = self.move[0]
-                            spaceobject.velocity_y = self.move[1]
-                            Logger.debug("Draw velocity %s" %str(spaceobject))
+                            spaceobject.velocity_x = (touch.x - spaceobject.x) / appsettings['calculation_speed']
+                            spaceobject.velocity_y = (touch.y - spaceobject.y) / appsettings['calculation_speed']
                             spaceobject.decrease()
+                        Logger.debug("Draw velocity %s %s %s " %(str(spaceobject), touch.x, touch.y))
+                    self.canvas.after.clear()
+                    self.start_points = None
                 touch.ungrab(self)
             else:
             # it's a normal touch
@@ -232,12 +238,13 @@ class Space(Widget):
         Space.drawvelocity = not Space.drawvelocity
         Logger.debug("Draw ve %s" % Space.drawvelocity)
         if Space.drawvelocity:
-            Clock.unschedule(self.draw)
             Clock.unschedule(self.update)
+            Clock.unschedule(self.draw)
         else:
             Clock.schedule_interval(self.draw, 1./appsettings['calculation_speed'])
-            Clock.schedule_interval(self.update, 1./(appsettings['calculation_speed']+4))
+            # Clock.schedule_interval(self.update, 1./(appsettings['calculation_speed']+4))
             self.canvas.clear()
+            self.canvas.after.clear()
 Factory.register('Space', Space)
 
 
@@ -274,31 +281,26 @@ class GravityRing(Screen):
         self.velocity_btn.state = 'normal'
     def start_button_pressed(self):
         """Pass start button pressed"""
-        self.spacewidget.start_button_pressed()
-        self.stop_btn.state = 'normal'
         if self.spacewidget.drawvelocity:
             self.drawvelocity_button_pressed()
             self.velocity_btn.state = 'normal'
+        self.spacewidget.start_button_pressed()
+        self.stop_btn.state = 'normal'
     def reset_button_pressed(self):
         """Pass reset  button pressed"""
         self.spacewidget.reset_button_pressed()
 
     def drawvelocity_button_pressed(self):
         """Pass reset  button pressed"""
-        self.spacewidget.drawvelocity_button_pressed()
         self.start_btn.state = 'normal'
-        self.stop_btn.state = 'normal'
+        self.spacewidget.drawvelocity_button_pressed()
+        self.stop_btn.state = 'down'
     def settings_button_pressed(self):
-        
         if self.setting_popup is None:
-            
             self.setting_popup = Popup(attach_to=self,
                                        title='GravityRing Settings',
                                        size_hint=(0.9, 0.8))
-            
             self.setting_dialog = SettingDialog(root=self)
-            
             self.setting_popup.content = self.setting_dialog
-        
         self.spacewidget.stop_button_pressed()
         self.setting_popup.open()

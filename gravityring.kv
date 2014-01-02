@@ -193,7 +193,7 @@
         BoxLayout:
             orientation: 'vertical'
             Image:
-                source: 'logo.png'
+                source: 'graphics/logo.png'
                 id: logo
             Button:
                 width: 20
@@ -311,6 +311,7 @@
                 size: 10. , 22
             ToggleButton:
                 text: 'Draw velocity'
+                bold: True
                 id: velocity_btn
                 on_press: root.drawvelocity_button_pressed()
                 background_normal: 'graphics/button_normal.png'
