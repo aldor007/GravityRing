@@ -111,7 +111,7 @@ class Space(Widget):
     """ Main widget for simulation"""
     drawvelocity = False
     draw_label = True
-    start_points = [0, 0]
+    start_points = None
 
     def __init__(self, **kwargs):
         super(Space, self).__init__(**kwargs)
@@ -233,7 +233,7 @@ class Space(Widget):
         self.stop_button_pressed()
         self.canvas.clear()
         self.spacesystem.clear()
-        self.start_space()
+        # self.start_space()
     def drawvelocity_button_pressed(self):
         Space.drawvelocity = not Space.drawvelocity
         Logger.debug("Draw ve %s" % Space.drawvelocity)
@@ -286,9 +286,12 @@ class GravityRing(Screen):
             self.velocity_btn.state = 'normal'
         self.spacewidget.start_button_pressed()
         self.stop_btn.state = 'normal'
+        self.start_btn.state = 'down'
     def reset_button_pressed(self):
         """Pass reset  button pressed"""
         self.spacewidget.reset_button_pressed()
+        self.stop_btn.state = 'down'
+        self.start_btn.state = 'normal'
 
     def drawvelocity_button_pressed(self):
         """Pass reset  button pressed"""
