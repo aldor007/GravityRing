@@ -268,7 +268,7 @@
             top: app.window.height
 
             ToggleButton:
-                text: 'start'
+                text: 'Start'
                 bold: True
                 font_size: 17
                 size: 10. , 22
@@ -277,7 +277,7 @@
                 on_press: root.start_button_pressed()
                 id: start_btn
             ToggleButton:
-                text: 'stop'
+                text: 'Stop'
                 bold: True
                 font_size: 17
                 background_normal: 'graphics/button_normal.png'
@@ -310,13 +310,13 @@
                 on_release: root.manager.current = 'menu'
                 size: 10. , 22
             ToggleButton:
-                text: 'Draw velocity'
+                text: 'Draw\n velocity'
                 bold: True
                 id: velocity_btn
                 on_press: root.drawvelocity_button_pressed()
                 background_normal: 'graphics/button_normal.png'
                 background_down: 'graphics/button_down.png'
-                size: 10. , 22
+                size: 15. , 22
             BoxLayout:
             BoxLayout:
             BoxLayout:

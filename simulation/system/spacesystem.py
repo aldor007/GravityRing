@@ -217,7 +217,7 @@ class SpaceObject(SpaceObjectBase):
         tmp = [0, 0]
         tmp[0] = self.x + self.radius
         tmp[1] = self.y + self.radius
-        return Label(pos=tmp, text="Name %s\n postion=[%2.f,%2.f] velocity=[%2.f,%2.f] radius=%2.f mass=%2.f" \
+        return Label(pos=tmp, text="Name %s\n postion=[%0.2f,%0.2f] velocity=[%0.2f,%0.2f] radius=%0.2f mass=%0.2f" \
                         %(self.name, self.x, self.y, self.velocity_x, self.velocity_y,
                             self.radius, self.mass))
 

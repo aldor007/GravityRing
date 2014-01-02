@@ -21,6 +21,7 @@ class Menu(Screen):
 class GravityRingApp(App):
     """Aplication class"""
     sm = ScreenManager()
+    icon = 'graphics/icon.png'
     def build(self):
         """build application"""
         from kivy.base import EventLoop
