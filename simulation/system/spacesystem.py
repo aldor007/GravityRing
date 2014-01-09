@@ -330,8 +330,9 @@ class SpaceSystem(ListBase):
                             item2.merge(item)
                             items_merged.append(item.spaceid)
                             tmp.remove(item)
-                        if math.fabs(item.x) > 3000 or math.fabs(item.y) > 3000:
-                            items_merged.append(item.spaceid)
+                    if math.fabs(item.x) > 3000 or math.fabs(item.y) > 3000:
+                        items_merged.append(item.spaceid)
+                        if item in tmp:
                             tmp.remove(item)
                         item.cleanup()
         self.system = tmp
