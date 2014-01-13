@@ -149,6 +149,7 @@
         orientation: "vertical"
         FileChooserListView:
             id: filechooser
+            filters: ["*.yml","*.yaml"]
 
         BoxLayout:
             size_hint_y: None
@@ -170,6 +171,7 @@
         FileChooserListView:
             id: filechooser
             on_selection: text_input.text = self.selection and self.selection[0] or ''
+            filters: ["*.yml","*.yaml"]
 
         TextInput:
             id: text_input

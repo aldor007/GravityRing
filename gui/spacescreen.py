@@ -168,7 +168,7 @@ class Space(Widget):
         if self.collide_point(*touch.pos):
             if touch.grab_current is self:
             # I receive my grabbed touch, I must ungrab it!
-                newobject = SpaceObject(pos=(touch.x - self.pos[0], touch.y - self.pos[1]))
+                newobject = SpaceObject(pos=(touch.x - self.pos[0], touch.y - self.pos[1]), radius = 2)
                 for spaceobject in self.spacesystem.get_system():
                     if newobject.collision(spaceobject):
                         spaceobject.show_label = not spaceobject.show_label
@@ -179,6 +179,8 @@ class Space(Widget):
                 if not self.drawvelocity:
                     radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
                     newobject.radius = radius
+                    newobject.x -= radius/2
+                    newobject.y -= radius/2
                     if radius > 0:
                         self.spacesystem.append(newobject)
                 else:

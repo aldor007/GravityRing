@@ -239,6 +239,8 @@ class SpaceObject(SpaceObjectBase):
         self.mass_val += other.mass
         self.radius_val = (3. * self.mass/(appsettings['density'] *4. * math.pi))**(1./3.)
         other.merged = True
+        self.velocity_x = other.mass * other.velocity_x / self.mass
+        self.velocity_y = other.mass * other.velocity_y / self.mass
         try:
             del self.forces[other.spaceid]
         except KeyError:

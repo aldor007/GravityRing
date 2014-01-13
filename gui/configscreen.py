@@ -15,7 +15,7 @@ from simulation.conf import Config
 from simulation.conf.configparser import ConfigParser
 from simulation.conf.settings import appsettings
 from gui.spacescreen import GravityRing
-
+from gui.kivytoast import toast
 
 
 class LoadDialog(FloatLayout):
@@ -83,9 +83,23 @@ class ConfigScreen(Screen):
             stream.write(self.text_input.text)
         self.dismiss_popup()
     def __load_system(self, text):
-        self.config.loadfromstring(text)
-        parser = ConfigParser(self.config)
+        try:
+            self.config.loadfromstring(text)
+        except Exception as err:
+            self.text_input.focus = True
+            if hasattr(err, 'problem_mark'):
+                mark = err.problem_mark
+                Logger.warning("Mark %s %s" % (mark.line, mark.column))
+                Logger.debug("text {}".format(self.text_input.cursor))
+                self.text_input.cursor = (mark.line + 1, mark.column + 1)
+                Logger.debug("text {} ".format(self.text_input.cursor))
+            toast("Error parsing file! %s" % str(err), True)
+            Logger.warning("Error {}".format(err))
+            raise err
+        # except Exception as err:
+
         self.space_widget.spacesystem.clear()
+        parser = ConfigParser(self.config)
         self.space_widget.spacesystem.system = parser.parse()
         Logger.debug("Len system %s parser %s  "% (len(self.space_widget.spacesystem), len(parser.parse())))
     def __validate(self, value):
@@ -105,7 +119,7 @@ class ConfigScreen(Screen):
             self.__load_system(self.text_input.text)
             Logger.debug("Cofnig %s" % str(self.config.data))
         except Exception as err:
-            Logger.warning("Parse error %s " % (err))
+            Logger.warning("Parse error %s " % (err), exc_info=True)
 
     def on_enter(self):
         self.space_widget.spacesystem.clear()
