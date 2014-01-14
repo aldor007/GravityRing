@@ -31,8 +31,8 @@ class Force(object):
         self.startpos = [spaceobject1.x, spaceobject1.y]
         self.endpos = [0, 0]
         self.value = self.calculate(spaceobject1.mass, spaceobject2.mass, distancesqured)
-        self.endpos[0] = self.startpos[0] + self.vector[0] / (10 * appsettings['gravity']) * 10 * math.fabs(self.value)
-        self.endpos[1] = self.startpos[1] + self.vector[1] / (10 * appsettings['gravity']) * 10 *  math.fabs(self.value)
+        self.endpos[0] = self.startpos[0] + self.vector[0] / (10 * appsettings['gravity']) * 20 * math.fabs(self.value)
+        self.endpos[1] = self.startpos[1] + self.vector[1] / (10 * appsettings['gravity']) * 20 *  math.fabs(self.value)
 
     def calculate(self, mass1, mass2, distancesqured):
         """Calculate value of force on object.
