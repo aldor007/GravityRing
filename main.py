@@ -1,8 +1,6 @@
 """Main module of app"""
 #
-__version__ = '0.1.2'
-import math
-import os
+__version__ = '0.1.3'
 import kivy
 kivy.require('1.0.9')
 from kivy.app import App
