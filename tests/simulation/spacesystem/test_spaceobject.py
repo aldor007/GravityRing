@@ -68,7 +68,7 @@ class  SpaceObjectTest(unittest.TestCase):
         patch_draw = patch('simulation.system.spacesystem.Ellipse', mock_draw)
         patch_draw.start()
         test = SpaceObject(pos=(0,0))
-        test.draw([0, 0], 2, 3, 4)
+        test.draw([0, 0])
         patch_draw.stop()
         self.assertTrue(mock_draw.called)
     def test_draw_forces(self):
@@ -81,7 +81,7 @@ class  SpaceObjectTest(unittest.TestCase):
         patch_draw.start()
         test = SpaceObject(pos=(0,0))
         test.forces[1] = mock_forces
-        test.draw([0, 0], 2, 3, 4)
+        test.draw([0, 0])
         patch_draw.stop()
         self.assertTrue(mock_draw.called)
         self.assertTrue(mock_forces.draw.called)

@@ -1,0 +1,395 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simulation.system package &mdash; GravityRing 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GravityRing 0.1.2 documentation" href="index.html" />
+    <link rel="up" title="simulation package" href="simulation.html" />
+    <link rel="next" title="utils module" href="utils.html" />
+    <link rel="prev" title="simulation.numericmethods package" href="simulation.numericmethods.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="utils module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulation.numericmethods.html" title="simulation.numericmethods package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="simulation.html" accesskey="U">simulation package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="simulation-system-package">
+<h1>simulation.system package<a class="headerlink" href="#simulation-system-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-simulation.system.spacesystem">
+<span id="simulation-system-spacesystem-module"></span><h2>simulation.system.spacesystem module<a class="headerlink" href="#module-simulation.system.spacesystem" title="Permalink to this headline">¶</a></h2>
+<p>Module containing main object for simulations</p>
+<dl class="class">
+<dt id="simulation.system.spacesystem.Force">
+<em class="property">class </em><tt class="descclassname">simulation.system.spacesystem.</tt><tt class="descname">Force</tt><big>(</big><em>spaceobject2</em>, <em>spaceobject1</em>, <em>distancesqured</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#Force"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.Force" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Class containing force value</p>
+<dl class="method">
+<dt id="simulation.system.spacesystem.Force.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>mass1</em>, <em>mass2</em>, <em>distancesqured</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#Force.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.Force.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate value of force on object.
+If distance smaller then 1e-4 returns 0</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mass1</strong> &#8211; mass first object.</li>
+<li><strong>mass2</strong> &#8211; mass second object.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">value of force.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.Force.draw">
+<tt class="descname">draw</tt><big>(</big><em>shift</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#Force.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.Force.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method draw force on canvas</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>shift</strong> &#8211; shift ftom start point(0,0),</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simulation.system.spacesystem.SpaceObject">
+<em class="property">class </em><tt class="descclassname">simulation.system.spacesystem.</tt><tt class="descname">SpaceObject</tt><big>(</big><em>pos</em>, <em>radius=10</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#simulation.system.spacesystem.SpaceObjectBase" title="simulation.system.spacesystem.SpaceObjectBase"><tt class="xref py py-class docutils literal"><span class="pre">simulation.system.spacesystem.SpaceObjectBase</span></tt></a></p>
+<p>Class represetn space object</p>
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.calcutateforces">
+<tt class="descname">calcutateforces</tt><big>(</big><em>distancesqured</em>, <em>other</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.calcutateforces"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.calcutateforces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Merhod calculate force affected by others and
+store it in list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>distancesqured</strong> &#8211; distancesqured between objects.</li>
+<li><strong>other</strong> &#8211; other SpaceObject.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">value of force</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.cleanup">
+<tt class="descname">cleanup</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.cleanup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for removing forces from merged spaceobjects</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.collision">
+<tt class="descname">collision</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.collision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.collision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for detect collision between object</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> &#8211; other SpacObjec.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if collision  else  False.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.decrease">
+<tt class="descname">decrease</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.decrease"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.decrease" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method decrease count of object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.draw">
+<tt class="descname">draw</tt><big>(</big><em>shift</em>, <em>width</em>, <em>height</em>, <em>zoom</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.draw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.draw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method draw SpaceObject on canvas</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.interactions">
+<tt class="descname">interactions</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.interactions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.interactions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns force, distance betwen two objects</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>other</strong> &#8211; other spaceobject.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">value of force, distance.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.merge">
+<tt class="descname">merge</tt><big>(</big><em>other</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.merge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for merging space objece
+when they collide</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObject.mergedforces">
+<tt class="descname">mergedforces</tt><em class="property"> = []</em><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.mergedforces" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObject.objectcount">
+<tt class="descname">objectcount</tt><em class="property"> = 0</em><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.objectcount" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceObject.return_label">
+<tt class="descname">return_label</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObject.return_label"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObject.return_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method genereting label containing useful information
+about postion, velocity, radius, mass</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simulation.system.spacesystem.SpaceObjectBase">
+<em class="property">class </em><tt class="descclassname">simulation.system.spacesystem.</tt><tt class="descname">SpaceObjectBase</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Abstraction for SpaceObject</p>
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObjectBase.mass">
+<tt class="descname">mass</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase.mass"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase.mass" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return object mass</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObjectBase.position">
+<tt class="descname">position</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase.position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase.position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return position list</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObjectBase.radius">
+<tt class="descname">radius</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase.radius"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase.radius" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return radius of object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObjectBase.velocity_x">
+<tt class="descname">velocity_x</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase.velocity_x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase.velocity_x" title="Permalink to this definition">¶</a></dt>
+<dd><p>return velocity_x</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObjectBase.velocity_y">
+<tt class="descname">velocity_y</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase.velocity_y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase.velocity_y" title="Permalink to this definition">¶</a></dt>
+<dd><p>return velocity_y</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObjectBase.x">
+<tt class="descname">x</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase.x"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase.x" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return x of postion</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceObjectBase.y">
+<tt class="descname">y</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceObjectBase.y"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceObjectBase.y" title="Permalink to this definition">¶</a></dt>
+<dd><p>return y of pos</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simulation.system.spacesystem.SpaceSystem">
+<em class="property">class </em><tt class="descclassname">simulation.system.spacesystem.</tt><tt class="descname">SpaceSystem</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#utils.ListBase" title="utils.ListBase"><tt class="xref py py-class docutils literal"><span class="pre">utils.ListBase</span></tt></a></p>
+<p>Class containing list of spaceobjects</p>
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceSystem.append">
+<tt class="descname">append</tt><big>(</big><em>spaceobject</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceSystem.append"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceSystem.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for adding spaceobject to list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceSystem.clear">
+<tt class="descname">clear</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceSystem.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceSystem.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method clear system list</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.system.spacesystem.SpaceSystem.data">
+<tt class="descname">data</tt><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceSystem.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceSystem.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic property getter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceSystem.get_system">
+<tt class="descname">get_system</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceSystem.get_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceSystem.get_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for getting system list</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceSystem.points_in_system">
+<tt class="descname">points_in_system</tt><big>(</big><em>posx</em>, <em>posy</em><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceSystem.points_in_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceSystem.points_in_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method check if point is in system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>posx</strong> &#8211; x point value.</li>
+<li><strong>posy</strong> &#8211; y point value.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if point is in system else False</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.system.spacesystem.SpaceSystem.update">
+<tt class="descname">update</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/system/spacesystem.html#SpaceSystem.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.system.spacesystem.SpaceSystem.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method runned periodicly. It refres system list.
+Check collisions between object and whether it is to far</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-simulation.system">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulation.system" title="Permalink to this headline">¶</a></h2>
+<p>Init for system module</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">simulation.system package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulation.system.spacesystem">simulation.system.spacesystem module</a></li>
+<li><a class="reference internal" href="#module-simulation.system">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="simulation.numericmethods.html"
+                        title="previous chapter">simulation.numericmethods package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utils.html"
+                        title="next chapter">utils module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/simulation.system.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="utils module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulation.numericmethods.html" title="simulation.numericmethods package"
+             >previous</a> |</li>
+        <li><a href="index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="simulation.html" >simulation package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Marcin Kaciuba.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

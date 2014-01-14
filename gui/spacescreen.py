@@ -138,7 +138,7 @@ class Space(Widget):
         """method triggered on touch event"""
         if self.collide_point(*touch.pos):
             touch.grab(self)
-            Logger.info("Touch %s  %s %s" % (self.pos, self.width, self.height))
+            Logger.info("Touch %s  down  [%s,%s] " % (self.pos, touch.x, touch.y))
             self.move = [0, 0]
             if self.drawvelocity:
                 if self.spacesystem.points_in_system(*touch.pos):
@@ -167,20 +167,23 @@ class Space(Widget):
         """method triggered on touch up event"""
         if self.collide_point(*touch.pos):
             if touch.grab_current is self:
+                Logger.info("Touch %s, %s  up  [%s,%s] " % (touch.dx, touch.dy, touch.x, touch.y))
             # I receive my grabbed touch, I must ungrab it!
-                newobject = SpaceObject(pos=(touch.x - self.pos[0], touch.y - self.pos[1]), radius = 2)
+                newobject = SpaceObject(pos=(touch.x - 1, touch.y - 1), radius = 1)
                 for spaceobject in self.spacesystem.get_system():
                     if newobject.collision(spaceobject):
                         spaceobject.show_label = not spaceobject.show_label
+                        Logger.debug("space {}".format(newobject))
+                        Logger.debug("pos {}".format(self.pos))
                         spaceobject.decrease()
-                        Logger.debug("Draw label %s" % spaceobject.show_label)
+                        Logger.debug("Draw label point {} space {}".format([touch.x,touch.y], spaceobject))
                         touch.ungrab(self)
                         return True
                 if not self.drawvelocity:
-                    radius = math.sqrt(self.move[0]**2 + self.move[1]**2)
+                    radius = math.sqrt(self.move[0]**2 + self.move[1]**2) / 2.
                     newobject.radius = radius
-                    newobject.x -= radius/2
-                    newobject.y -= radius/2
+                    # newobject.x -= radius + 1
+                    # newobject.y -= radius + 1
                     if radius > 0:
                         self.spacesystem.append(newobject)
                 else:
@@ -204,11 +207,11 @@ class Space(Widget):
         self.spacesystem.update()
     def draw(self, dt):
         """method for drawing new system """
-        zoom = appsettings['zoom']
+        # zoom = appsettings['zoom']
         self.canvas.clear()
         with self.canvas:
             for item in self.spacesystem.get_system():
-                item.draw(self.pos, self.width, self.height, zoom)
+                item.draw(self.pos)
         if self.draw_label:
             for item in self.spacesystem.get_system():
                 if item.show_label:

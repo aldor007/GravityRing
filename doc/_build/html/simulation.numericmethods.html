@@ -1,0 +1,331 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simulation.numericmethods package &mdash; GravityRing 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GravityRing 0.1.2 documentation" href="index.html" />
+    <link rel="up" title="simulation package" href="simulation.html" />
+    <link rel="next" title="simulation.system package" href="simulation.system.html" />
+    <link rel="prev" title="simulation.conf package" href="simulation.conf.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulation.system.html" title="simulation.system package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulation.conf.html" title="simulation.conf package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="simulation.html" accesskey="U">simulation package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="simulation-numericmethods-package">
+<h1>simulation.numericmethods package<a class="headerlink" href="#simulation-numericmethods-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-simulation.numericmethods.base">
+<span id="simulation-numericmethods-base-module"></span><h2>simulation.numericmethods.base module<a class="headerlink" href="#module-simulation.numericmethods.base" title="Permalink to this headline">¶</a></h2>
+<p>Base module for numeric calculations</p>
+<dl class="class">
+<dt id="simulation.numericmethods.base.Coefficient">
+<em class="property">class </em><tt class="descclassname">simulation.numericmethods.base.</tt><tt class="descname">Coefficient</tt><big>(</big><em>dx</em>, <em>dy</em>, <em>dvx</em>, <em>dvy</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/base.html#Coefficient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.base.Coefficient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Store date for coeffcient</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="simulation.numericmethods.base.NumericMethod">
+<em class="property">class </em><tt class="descclassname">simulation.numericmethods.base.</tt><tt class="descname">NumericMethod</tt><a class="reference internal" href="_modules/simulation/numericmethods/base.html#NumericMethod"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.base.NumericMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Base class for solving equestion</p>
+<dl class="method">
+<dt id="simulation.numericmethods.base.NumericMethod.acceleration">
+<tt class="descname">acceleration</tt><big>(</big><em>planet1</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/base.html#NumericMethod.acceleration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.base.NumericMethod.acceleration" title="Permalink to this definition">¶</a></dt>
+<dd><p>method for calculate acceleration
+:param planet1: SpaceObject for what there will be calcuations
+:returns: (ax, ay)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.numericmethods.base.NumericMethod.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>system</em>, <em>dt=1</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/base.html#NumericMethod.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.base.NumericMethod.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main fuction for calculate new postion of all object in  system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body">NotImplementedError</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-simulation.numericmethods.euler">
+<span id="simulation-numericmethods-euler-module"></span><h2>simulation.numericmethods.euler module<a class="headerlink" href="#module-simulation.numericmethods.euler" title="Permalink to this headline">¶</a></h2>
+<p>Euler method for solving statment</p>
+<dl class="class">
+<dt id="simulation.numericmethods.euler.Euler">
+<em class="property">class </em><tt class="descclassname">simulation.numericmethods.euler.</tt><tt class="descname">Euler</tt><a class="reference internal" href="_modules/simulation/numericmethods/euler.html#Euler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.euler.Euler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#simulation.numericmethods.base.NumericMethod" title="simulation.numericmethods.base.NumericMethod"><tt class="xref py py-class docutils literal"><span class="pre">simulation.numericmethods.base.NumericMethod</span></tt></a></p>
+<p>Solving equation using Euler method</p>
+<dl class="method">
+<dt id="simulation.numericmethods.euler.Euler.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>system</em>, <em>dt=0.1</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/euler.html#Euler.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.euler.Euler.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function returning dict of new system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>system</strong> &#8211; list of spaceobjects.</li>
+<li><strong>dt</strong> &#8211; time step.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">new list of spaceobjects.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-simulation.numericmethods.rungekutta">
+<span id="simulation-numericmethods-rungekutta-module"></span><h2>simulation.numericmethods.rungekutta module<a class="headerlink" href="#module-simulation.numericmethods.rungekutta" title="Permalink to this headline">¶</a></h2>
+<p>Implemation of RK4 module</p>
+<dl class="class">
+<dt id="simulation.numericmethods.rungekutta.RungeKutta">
+<em class="property">class </em><tt class="descclassname">simulation.numericmethods.rungekutta.</tt><tt class="descname">RungeKutta</tt><a class="reference internal" href="_modules/simulation/numericmethods/rungekutta.html#RungeKutta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.rungekutta.RungeKutta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#simulation.numericmethods.base.NumericMethod" title="simulation.numericmethods.base.NumericMethod"><tt class="xref py py-class docutils literal"><span class="pre">simulation.numericmethods.base.NumericMethod</span></tt></a></p>
+<p>Solving equation using method RungeKutta 4 degrea</p>
+<dl class="method">
+<dt id="simulation.numericmethods.rungekutta.RungeKutta.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>system</em>, <em>dt=0.1</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/rungekutta.html#RungeKutta.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.rungekutta.RungeKutta.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function returning dict of new system
+:param system: list of spaceobjects.
+:para dt: time step.
+:returns: new list of spaceobjects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.numericmethods.rungekutta.RungeKutta.evaluate">
+<tt class="descname">evaluate</tt><big>(</big><em>planet</em>, <em>coefficient</em>, <em>dt</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/rungekutta.html#RungeKutta.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.rungekutta.RungeKutta.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculate new coefficient</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>planet</strong> &#8211; SpaceObject.</li>
+<li><strong>coefficient</strong> &#8211; Coefficient  for calculations.</li>
+<li><strong>dt</strong> &#8211; time step.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Coefficient.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.numericmethods.rungekutta.RungeKutta.growth">
+<tt class="descname">growth</tt><big>(</big><em>k1</em>, <em>k2</em>, <em>k3</em>, <em>k4</em>, <em>dt</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/rungekutta.html#RungeKutta.growth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.rungekutta.RungeKutta.growth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate change of position and velocity</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>k1</strong> &#8211; Coefficient.</li>
+<li><strong>k2</strong> &#8211; Coefficient.</li>
+<li><strong>k3</strong> &#8211; Coefficient.</li>
+<li><strong>k4</strong> &#8211; Coefficient.</li>
+<li><strong>dt</strong> &#8211; time steep.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">toupe of changes postion and velocity.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.numericmethods.rungekutta.RungeKutta.intermediate">
+<tt class="descname">intermediate</tt><big>(</big><em>planet</em>, <em>dt</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/rungekutta.html#RungeKutta.intermediate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.rungekutta.RungeKutta.intermediate" title="Permalink to this definition">¶</a></dt>
+<dd><p>caclculate iAntermediate</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>planet</strong> &#8211; SpaceObject.</li>
+<li><strong>dt</strong> &#8211; time step.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">touple of Coefficient.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-simulation.numericmethods.verletvelocity">
+<span id="simulation-numericmethods-verletvelocity-module"></span><h2>simulation.numericmethods.verletvelocity module<a class="headerlink" href="#module-simulation.numericmethods.verletvelocity" title="Permalink to this headline">¶</a></h2>
+<p>Modul for resolving Verlet</p>
+<dl class="class">
+<dt id="simulation.numericmethods.verletvelocity.VerletVelocity">
+<em class="property">class </em><tt class="descclassname">simulation.numericmethods.verletvelocity.</tt><tt class="descname">VerletVelocity</tt><a class="reference internal" href="_modules/simulation/numericmethods/verletvelocity.html#VerletVelocity"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.verletvelocity.VerletVelocity" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#simulation.numericmethods.base.NumericMethod" title="simulation.numericmethods.base.NumericMethod"><tt class="xref py py-class docutils literal"><span class="pre">simulation.numericmethods.base.NumericMethod</span></tt></a></p>
+<p>Solving equation using method RungaKutta 4 degrea</p>
+<dl class="method">
+<dt id="simulation.numericmethods.verletvelocity.VerletVelocity.calculate">
+<tt class="descname">calculate</tt><big>(</big><em>system</em>, <em>dt=1</em><big>)</big><a class="reference internal" href="_modules/simulation/numericmethods/verletvelocity.html#VerletVelocity.calculate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.numericmethods.verletvelocity.VerletVelocity.calculate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function returning dict of new system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>system</strong> &#8211; list of spaceobjects.</li>
+<li><strong>dt</strong> &#8211; time step.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">new list of spaceobjects.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-simulation.numericmethods">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulation.numericmethods" title="Permalink to this headline">¶</a></h2>
+<p>Base module for numeric calculations</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">simulation.numericmethods package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulation.numericmethods.base">simulation.numericmethods.base module</a></li>
+<li><a class="reference internal" href="#module-simulation.numericmethods.euler">simulation.numericmethods.euler module</a></li>
+<li><a class="reference internal" href="#module-simulation.numericmethods.rungekutta">simulation.numericmethods.rungekutta module</a></li>
+<li><a class="reference internal" href="#module-simulation.numericmethods.verletvelocity">simulation.numericmethods.verletvelocity module</a></li>
+<li><a class="reference internal" href="#module-simulation.numericmethods">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="simulation.conf.html"
+                        title="previous chapter">simulation.conf package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="simulation.system.html"
+                        title="next chapter">simulation.system package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/simulation.numericmethods.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulation.system.html" title="simulation.system package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulation.conf.html" title="simulation.conf package"
+             >previous</a> |</li>
+        <li><a href="index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="simulation.html" >simulation package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Marcin Kaciuba.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

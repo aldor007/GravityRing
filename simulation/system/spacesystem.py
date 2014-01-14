@@ -28,11 +28,11 @@ class Force(object):
         :param distancesqured: sqrt from distance^2.
         """
         self.vector = (spaceobject2.x - spaceobject1.x, spaceobject2.y - spaceobject1.y )
-        self.startpos = [spaceobject1.x +spaceobject1.radius/4., spaceobject1.y + spaceobject1.radius/4]
+        self.startpos = [spaceobject1.x, spaceobject1.y]
         self.endpos = [0, 0]
         self.value = self.calculate(spaceobject1.mass, spaceobject2.mass, distancesqured)
-        self.endpos[0] = self.startpos[0] + self.vector[0] / (10 * appsettings['gravity']) * 0.1 * math.fabs(self.value)
-        self.endpos[1] = self.startpos[1] + self.vector[1] / (10 * appsettings['gravity']) * 0.1 *  math.fabs(self.value)
+        self.endpos[0] = self.startpos[0] + self.vector[0] / (10 * appsettings['gravity']) * 10 * math.fabs(self.value)
+        self.endpos[1] = self.startpos[1] + self.vector[1] / (10 * appsettings['gravity']) * 10 *  math.fabs(self.value)
 
     def calculate(self, mass1, mass2, distancesqured):
         """Calculate value of force on object.
@@ -221,15 +221,16 @@ class SpaceObject(SpaceObjectBase):
                         %(self.name, self.x, self.y, self.velocity_x, self.velocity_y,
                             self.radius, self.mass))
 
-    def draw(self, shift, width, height, zoom):
+    def draw(self, shift):
         """Method draw SpaceObject on canvas"""
-        width = width / 2.
-        height = height / 2.
+        # width = width / 2.
+        # height = height / 2.
         #TODO: work on zoom
         # tmpposx = width + self.x
         # tmpposy = height +self.y
         Color(*self.color)
-        Ellipse(pos=(self.x + shift[0], self.y + shift[1]), size=(zoom * self.radius, zoom * self.radius))
+        Ellipse(pos=(self.x + shift[0] - self.radius_val, self.y + shift[1] - self.radius_val),
+                size=(self.radius * 2, self.radius * 2))
         for force in self.forces.values():
             force.draw(shift)
 
@@ -266,15 +267,16 @@ class SpaceObject(SpaceObjectBase):
         :param other: other SpacObjec.
         :returns: True if collision  else  False.
         """
-        distancex = self.x + - other.x
+        distancex = self.x - other.x
         distancey = self.y - other.y
         distance = math.sqrt(distancex**2 + distancey**2)
-        return distance <= (self.radius + other.radius)
+        return float(distance) <= float(self.radius + other.radius)
 
     def __str__(self):
         reprstr = super(SpaceObject, self).__str__()
         reprstr += ' spaceid = %s' % self.spaceid
         return reprstr
+
     def __eq__(self, other):
         if self is other:
             return True
@@ -343,7 +345,7 @@ class SpaceSystem(ListBase):
             matmethod = self.matmethods[appsettings['numericmethod']]
         except KeyError:
             matmethod = self.matmethods['RungeKutta']
-            Logger.warning("Defualt method %s " % appsettings['numericmethod'])
+            Logger.warning("Defualt method {} ".format(appsettings['numericmethod']))
 
         self.system = matmethod.calculate(self.system, appsettings['dt_in_numericmethod'])
         return self

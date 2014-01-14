@@ -1,0 +1,374 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simulation.conf package &mdash; GravityRing 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GravityRing 0.1.2 documentation" href="index.html" />
+    <link rel="up" title="simulation package" href="simulation.html" />
+    <link rel="next" title="simulation.numericmethods package" href="simulation.numericmethods.html" />
+    <link rel="prev" title="simulation package" href="simulation.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulation.numericmethods.html" title="simulation.numericmethods package"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="simulation.html" title="simulation package"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="simulation.html" accesskey="U">simulation package</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="simulation-conf-package">
+<h1>simulation.conf package<a class="headerlink" href="#simulation-conf-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-simulation.conf.configparser">
+<span id="simulation-conf-configparser-module"></span><h2>simulation.conf.configparser module<a class="headerlink" href="#module-simulation.conf.configparser" title="Permalink to this headline">¶</a></h2>
+<p>Module containing functionf for parsing yaml file with 
+position and mass of object in system</p>
+<dl class="class">
+<dt id="simulation.conf.configparser.ConfigParser">
+<em class="property">class </em><tt class="descclassname">simulation.conf.configparser.</tt><tt class="descname">ConfigParser</tt><big>(</big><em>config</em><big>)</big><a class="reference internal" href="_modules/simulation/conf/configparser.html#ConfigParser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.configparser.ConfigParser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">object</span></tt></p>
+<p>Class for parsing yaml configuration file</p>
+<dl class="attribute">
+<dt id="simulation.conf.configparser.ConfigParser.ATTRIBUTESKEY">
+<tt class="descname">ATTRIBUTESKEY</tt><em class="property"> = ('mass', 'x', 'y', 'velocity', 'position')</em><a class="headerlink" href="#simulation.conf.configparser.ConfigParser.ATTRIBUTESKEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.conf.configparser.ConfigParser.DEFINITIONSKEY">
+<tt class="descname">DEFINITIONSKEY</tt><em class="property"> = {'y': 'distance', 'x': 'distance', 'velocity': 'velocity', 'mass': 'mass', 'position': 'distance'}</em><a class="headerlink" href="#simulation.conf.configparser.ConfigParser.DEFINITIONSKEY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="simulation.conf.configparser.ConfigParser.OPERATORS">
+<tt class="descname">OPERATORS</tt><em class="property"> = {'+': &lt;function &lt;lambda&gt; at 0x97c5aac&gt;, '*': &lt;function &lt;lambda&gt; at 0x97c5b1c&gt;, '-': &lt;function &lt;lambda&gt; at 0x97c5ae4&gt;}</em><a class="headerlink" href="#simulation.conf.configparser.ConfigParser.OPERATORS" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.configparser.ConfigParser.parse">
+<tt class="descname">parse</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/conf/configparser.html#ConfigParser.parse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.configparser.ConfigParser.parse" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse configuration for simulation
+convert all knowed attributes to number values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">SpaceObject list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.configparser.ConfigParser.resolve">
+<tt class="descname">resolve</tt><big>(</big><em>stringeq</em><big>)</big><a class="reference internal" href="_modules/simulation/conf/configparser.html#ConfigParser.resolve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.configparser.ConfigParser.resolve" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resolve math statement
+:param stringeq: string containing equation to calculate
+:return: number, value of equation</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="simulation.conf.configparser.cmpPrecedence">
+<tt class="descclassname">simulation.conf.configparser.</tt><tt class="descname">cmpPrecedence</tt><big>(</big><em>token1</em>, <em>token2</em><big>)</big><a class="reference internal" href="_modules/simulation/conf/configparser.html#cmpPrecedence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.configparser.cmpPrecedence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Comper priorities of operators.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>token1</strong> &#8211; char.</li>
+<li><strong>token2</strong> &#8211; char.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><p class="first">ValueError if token isn&#8217;t operator.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">number</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="simulation.conf.configparser.infixToRPN">
+<tt class="descclassname">simulation.conf.configparser.</tt><tt class="descname">infixToRPN</tt><big>(</big><em>tokens</em><big>)</big><a class="reference internal" href="_modules/simulation/conf/configparser.html#infixToRPN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.configparser.infixToRPN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Conver infinix writen statement to revers polish notation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tokens</strong> &#8211; list of strings.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of string in rever polish notation order.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="simulation.conf.configparser.isAssociative">
+<tt class="descclassname">simulation.conf.configparser.</tt><tt class="descname">isAssociative</tt><big>(</big><em>token</em>, <em>assoc</em><big>)</big><a class="reference internal" href="_modules/simulation/conf/configparser.html#isAssociative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.configparser.isAssociative" title="Permalink to this definition">¶</a></dt>
+<dd><p>check associative of operator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">ValueError if token is not operator.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True or False.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="simulation.conf.configparser.isOperator">
+<tt class="descclassname">simulation.conf.configparser.</tt><tt class="descname">isOperator</tt><big>(</big><em>token</em><big>)</big><a class="reference internal" href="_modules/simulation/conf/configparser.html#isOperator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.configparser.isOperator" title="Permalink to this definition">¶</a></dt>
+<dd><p>check if token in operators dict</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>token</strong> &#8211; char.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True or False.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-simulation.conf.settings">
+<span id="simulation-conf-settings-module"></span><h2>simulation.conf.settings module<a class="headerlink" href="#module-simulation.conf.settings" title="Permalink to this headline">¶</a></h2>
+<p>Module containing class for settings of simulation</p>
+<dl class="class">
+<dt id="simulation.conf.settings.Settings">
+<em class="property">class </em><tt class="descclassname">simulation.conf.settings.</tt><tt class="descname">Settings</tt><a class="reference internal" href="_modules/simulation/conf/settings.html#Settings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.settings.Settings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#utils.ListBase" title="utils.ListBase"><tt class="xref py py-class docutils literal"><span class="pre">utils.ListBase</span></tt></a></p>
+<p>Class containing settings of simulation</p>
+<dl class="attribute">
+<dt id="simulation.conf.settings.Settings.data">
+<tt class="descname">data</tt><a class="reference internal" href="_modules/simulation/conf/settings.html#Settings.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.settings.Settings.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic property getter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.settings.Settings.get">
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>default=None</em><big>)</big><a class="reference internal" href="_modules/simulation/conf/settings.html#Settings.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.settings.Settings.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return value of key
+:param key: string
+:param default: default value if key doesn&#8217;t exist
+:returns: value of key</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-simulation.conf">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-simulation.conf" title="Permalink to this headline">¶</a></h2>
+<p>Module for reading yaml file containing configuration</p>
+<dl class="class">
+<dt id="simulation.conf.Config">
+<em class="property">class </em><tt class="descclassname">simulation.conf.</tt><tt class="descname">Config</tt><a class="reference internal" href="_modules/simulation/conf.html#Config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.Config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="utils.html#utils.ListBase" title="utils.ListBase"><tt class="xref py py-class docutils literal"><span class="pre">utils.ListBase</span></tt></a></p>
+<p>Class cointains configuration of system</p>
+<dl class="attribute">
+<dt id="simulation.conf.Config.data">
+<tt class="descname">data</tt><a class="reference internal" href="_modules/simulation/conf.html#Config.data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.Config.data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Basic property getter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.Config.get">
+<tt class="descname">get</tt><big>(</big><em>key</em><big>)</big><a class="reference internal" href="_modules/simulation/conf.html#Config.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.Config.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return specify key value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; string.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">value of key.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.Config.get_definitions">
+<tt class="descname">get_definitions</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/conf.html#Config.get_definitions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.Config.get_definitions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return: dict containing definitions variables</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.Config.get_system">
+<tt class="descname">get_system</tt><big>(</big><big>)</big><a class="reference internal" href="_modules/simulation/conf.html#Config.get_system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.Config.get_system" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return dict containing defintions for spaceobject</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.Config.loadfromstring">
+<tt class="descname">loadfromstring</tt><big>(</big><em>yamlstring</em><big>)</big><a class="reference internal" href="_modules/simulation/conf.html#Config.loadfromstring"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.Config.loadfromstring" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method load yaml-string and save data in order to data varible</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>yamlstring</strong> &#8211; string containing yaml.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="simulation.conf.OrderedDictYAMLLoader">
+<em class="property">class </em><tt class="descclassname">simulation.conf.</tt><tt class="descname">OrderedDictYAMLLoader</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/simulation/conf.html#OrderedDictYAMLLoader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.OrderedDictYAMLLoader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">yaml.loader.Loader</span></tt></p>
+<p>A YAML loader that loads mappings into ordered dictionaries.</p>
+<dl class="method">
+<dt id="simulation.conf.OrderedDictYAMLLoader.construct_mapping">
+<tt class="descname">construct_mapping</tt><big>(</big><em>node</em>, <em>deep=False</em><big>)</big><a class="reference internal" href="_modules/simulation/conf.html#OrderedDictYAMLLoader.construct_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.OrderedDictYAMLLoader.construct_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="simulation.conf.OrderedDictYAMLLoader.construct_yaml_map">
+<tt class="descname">construct_yaml_map</tt><big>(</big><em>node</em><big>)</big><a class="reference internal" href="_modules/simulation/conf.html#OrderedDictYAMLLoader.construct_yaml_map"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#simulation.conf.OrderedDictYAMLLoader.construct_yaml_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">simulation.conf package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-simulation.conf.configparser">simulation.conf.configparser module</a></li>
+<li><a class="reference internal" href="#module-simulation.conf.settings">simulation.conf.settings module</a></li>
+<li><a class="reference internal" href="#module-simulation.conf">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="simulation.html"
+                        title="previous chapter">simulation package</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="simulation.numericmethods.html"
+                        title="next chapter">simulation.numericmethods package</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/simulation.conf.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="simulation.numericmethods.html" title="simulation.numericmethods package"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="simulation.html" title="simulation package"
+             >previous</a> |</li>
+        <li><a href="index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="simulation.html" >simulation package</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Marcin Kaciuba.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

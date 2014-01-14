@@ -1,0 +1,299 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simulation.conf.configparser &mdash; GravityRing 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GravityRing 0.1.2 documentation" href="../../../index.html" />
+    <link rel="up" title="simulation.conf" href="../conf.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../conf.html" accesskey="U">simulation.conf</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for simulation.conf.configparser</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot; Module containing functionf for parsing yaml file with </span>
+<span class="sd">    position and mass of object in system &quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">kivy.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="c"># import logging</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">Singleton</span>
+<span class="kn">from</span> <span class="nn">simulation.system.spacesystem</span> <span class="kn">import</span> <span class="n">SpaceObject</span>
+
+<span class="c"># logging.basicConfig(level=logging.INFO)</span>
+<span class="c"># logger = logging.getLogger(__name__)</span>
+
+<span class="n">LEFT_ASSOC</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">RIGHT_ASSOC</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">OPERATORS</span> <span class="o">=</span> <span class="p">{</span>
+<span class="s">&#39;+&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">LEFT_ASSOC</span><span class="p">),</span>
+<span class="s">&#39;-&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">LEFT_ASSOC</span><span class="p">),</span>
+<span class="s">&#39;*&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">LEFT_ASSOC</span><span class="p">),</span>
+<span class="s">&#39;/&#39;</span> <span class="p">:</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">LEFT_ASSOC</span><span class="p">),</span>
+<span class="p">}</span>
+
+<div class="viewcode-block" id="isOperator"><a class="viewcode-back" href="../../../simulation.conf.html#simulation.conf.configparser.isOperator">[docs]</a><span class="k">def</span> <span class="nf">isOperator</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;check if token in operators dict</span>
+
+<span class="sd">    :param token: char.</span>
+<span class="sd">    :returns: True or False.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">OPERATORS</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="isAssociative"><a class="viewcode-back" href="../../../simulation.conf.html#simulation.conf.configparser.isAssociative">[docs]</a><span class="k">def</span> <span class="nf">isAssociative</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">assoc</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;check associative of operator</span>
+
+<span class="sd">    :raise: ValueError if token is not operator.</span>
+<span class="sd">    :return: True or False. &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isOperator</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid token: </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">token</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">OPERATORS</span><span class="p">[</span><span class="n">token</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">assoc</span>
+</div>
+<div class="viewcode-block" id="cmpPrecedence"><a class="viewcode-back" href="../../../simulation.conf.html#simulation.conf.configparser.cmpPrecedence">[docs]</a><span class="k">def</span> <span class="nf">cmpPrecedence</span><span class="p">(</span><span class="n">token1</span><span class="p">,</span> <span class="n">token2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Comper priorities of operators.</span>
+
+<span class="sd">    :param token1: char.</span>
+<span class="sd">    :param token2: char.</span>
+<span class="sd">    :raise: ValueError if token isn&#39;t operator.</span>
+<span class="sd">    :returns: number</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isOperator</span><span class="p">(</span><span class="n">token1</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">isOperator</span><span class="p">(</span><span class="n">token2</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Invalid tokens: </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">token1</span><span class="p">,</span> <span class="n">token2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">OPERATORS</span><span class="p">[</span><span class="n">token1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">OPERATORS</span><span class="p">[</span><span class="n">token2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="infixToRPN"><a class="viewcode-back" href="../../../simulation.conf.html#simulation.conf.configparser.infixToRPN">[docs]</a><span class="k">def</span> <span class="nf">infixToRPN</span><span class="p">(</span><span class="n">tokens</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Conver infinix writen statement to revers polish notation</span>
+
+<span class="sd">    :param tokens: list of strings.</span>
+<span class="sd">    :return: list of string in rever polish notation order.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">isOperator</span><span class="p">(</span><span class="n">token</span><span class="p">):</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">isOperator</span><span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">isAssociative</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">LEFT_ASSOC</span><span class="p">)</span> <span class="ow">and</span> 
+                        <span class="n">cmpPrecedence</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span>  <span class="ow">or</span> <span class="p">(</span><span class="n">isAssociative</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">RIGHT_ASSOC</span><span class="p">)</span>
+                                <span class="ow">and</span> <span class="n">cmpPrecedence</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+                    <span class="k">continue</span>
+                <span class="k">break</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&#39;(&#39;</span><span class="p">:</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">token</span> <span class="o">==</span> <span class="s">&#39;)&#39;</span><span class="p">:</span>
+            <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&#39;(&#39;</span><span class="p">:</span>
+                <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+    <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="n">stack</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+</div>
+<div class="viewcode-block" id="ConfigParser"><a class="viewcode-back" href="../../../simulation.conf.html#simulation.conf.configparser.ConfigParser">[docs]</a><span class="k">class</span> <span class="nc">ConfigParser</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for parsing yaml configuration file &quot;&quot;&quot;</span>
+    <span class="n">DEFINITIONSKEY</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;mass&#39;</span><span class="p">:</span> <span class="s">&#39;mass&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">:</span> <span class="s">&#39;distance&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">:</span> <span class="s">&#39;distance&#39;</span><span class="p">,</span> <span class="s">&#39;position&#39;</span><span class="p">:</span> <span class="s">&#39;distance&#39;</span><span class="p">,</span> <span class="s">&quot;velocity&quot;</span><span class="p">:</span> <span class="s">&#39;velocity&#39;</span><span class="p">}</span>
+    <span class="n">ATTRIBUTESKEY</span> <span class="o">=</span> <span class="p">(</span><span class="s">&#39;mass&#39;</span><span class="p">,</span> <span class="s">&#39;x&#39;</span><span class="p">,</span> <span class="s">&#39;y&#39;</span><span class="p">,</span> <span class="s">&#39;velocity&#39;</span><span class="p">,</span> <span class="s">&#39;position&#39;</span><span class="p">)</span>
+    <span class="n">OPERATORS</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s">&#39;+&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s">&#39;-&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span><span class="p">,</span>
+            <span class="s">&#39;*&#39;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">*</span> <span class="n">y</span>
+            <span class="p">}</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Init method for class</span>
+
+<span class="sd">        :param config: config class where is dict to parse.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_definitions</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spacesystemconf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_system</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="s">&#39;position&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="s">&#39;position&#39;</span><span class="p">][</span><span class="s">&#39;center&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">400</span><span class="p">,</span> <span class="mi">400</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="ConfigParser.parse"><a class="viewcode-back" href="../../../simulation.conf.html#simulation.conf.configparser.ConfigParser.parse">[docs]</a>    <span class="k">def</span> <span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse configuration for simulation</span>
+<span class="sd">           convert all knowed attributes to number values.</span>
+
+<span class="sd">           :returns: SpaceObject list &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c"># Logger.debug(&quot;read %s&quot; % len(self.spacesystemconf.keys()))</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spaceobjectconf</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spacesystemconf</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
+            <span class="n">spaceobj</span> <span class="o">=</span> <span class="n">SpaceObject</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+            <span class="c"># Logger.debug(&quot; name %s&quot; % name) </span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">spaceobjectconf</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">ATTRIBUTESKEY</span><span class="p">:</span>
+                    <span class="n">value</span> <span class="o">=</span> <span class="n">spaceobjectconf</span><span class="p">[</span><span class="n">attr</span><span class="p">]</span>
+                    <span class="c"># Logger.debug(&quot;value  %s&quot; %value)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="n">ConfigParser</span><span class="o">.</span><span class="n">DEFINITIONSKEY</span><span class="p">[</span><span class="n">attr</span><span class="p">]]:</span>
+                                <span class="n">tmpvalue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="n">ConfigParser</span><span class="o">.</span><span class="n">DEFINITIONSKEY</span><span class="p">[</span><span class="n">attr</span><span class="p">]][</span><span class="n">value</span><span class="p">]</span>
+                            <span class="k">elif</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="n">attr</span><span class="p">]:</span>
+                                <span class="n">tmpvalue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="n">attr</span><span class="p">][</span><span class="n">value</span><span class="p">]</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;\(.+?\,\s.+\)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+                                    <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">r&quot;\((?P&lt;x&gt;.+?)\,\s?(?P&lt;y&gt;.+?)\)&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                                    <span class="n">tmpvalue</span> <span class="o">=</span> <span class="p">[]</span>
+                                    <span class="k">for</span> <span class="n">value_attr</span> <span class="ow">in</span> <span class="n">regex</span><span class="o">.</span><span class="n">groups</span><span class="p">():</span>
+                                        <span class="n">tmpvalue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">value_attr</span><span class="p">))</span>
+                                <span class="k">else</span><span class="p">:</span>
+                                    <span class="n">tmpvalue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                            <span class="k">pass</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">tmpvalue</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Error&quot;</span><span class="p">)</span>
+                            <span class="k">return</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="nb">setattr</span><span class="p">(</span><span class="n">spaceobj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">tmpvalue</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">AttributeError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+                        <span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot; error </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">attr</span><span class="p">))</span>
+            <span class="n">spaceobj</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">spaceobj</span>
+        <span class="n">Logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;System = </span><span class="si">%s</span><span class="s">&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ConfigParser.resolve"><a class="viewcode-back" href="../../../simulation.conf.html#simulation.conf.configparser.ConfigParser.resolve">[docs]</a>    <span class="k">def</span> <span class="nf">resolve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stringeq</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resolve math statement</span>
+<span class="sd">        :param stringeq: string containing equation to calculate</span>
+<span class="sd">        :return: number, value of equation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stringeq</span> <span class="o">=</span> <span class="n">stringeq</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot; &quot;</span><span class="p">)</span>
+        <span class="n">string</span> <span class="o">=</span> <span class="n">infixToRPN</span><span class="p">(</span><span class="n">stringeq</span><span class="p">)</span>
+
+        <span class="n">Logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;After RPN string </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span><span class="n">string</span><span class="p">)</span>
+        <span class="n">stack</span> <span class="o">=</span>  <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">string</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s">r&quot;\w+\.\w+&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c"># item = self.spacesystem[item[0]].get(item[1])</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">DEFINITIONSKEY</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">definitions</span><span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ConfigParser</span><span class="o">.</span><span class="n">OPERATORS</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">value1</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="n">value2</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                    <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ConfigParser</span><span class="o">.</span><span class="n">OPERATORS</span><span class="p">[</span><span class="n">item</span><span class="p">](</span><span class="n">value1</span><span class="p">,</span> <span class="n">value2</span><span class="p">))</span>
+                <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                    <span class="c"># Logger.debug(&quot;IN %s %s   &quot; %(value1, value2))</span>
+                    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">value1</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+                        <span class="n">listvalue</span> <span class="o">=</span> <span class="n">value1</span>
+                        <span class="n">othervalue</span> <span class="o">=</span> <span class="n">value2</span>
+                        <span class="c"># Logger.debug(&quot;IN value  %s %s   &quot; %(listvalue, othervalue))</span>
+                    <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">value2</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">list</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">value2</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+                        <span class="n">othervalue</span> <span class="o">=</span> <span class="n">value1</span>
+                        <span class="n">listvalue</span> <span class="o">=</span> <span class="n">value2</span>
+                        <span class="c"># Logger.debug(&quot;IN  value  %s %s   &quot; %(listvalue, othervalue))</span>
+                    <span class="n">newvalue</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">propert</span> <span class="ow">in</span> <span class="n">listvalue</span><span class="p">:</span>
+                            <span class="n">newvalue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ConfigParser</span><span class="o">.</span><span class="n">OPERATORS</span><span class="p">[</span><span class="n">item</span><span class="p">](</span><span class="nb">int</span><span class="p">(</span><span class="n">propert</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">othervalue</span><span class="p">)))</span>
+                    <span class="k">except</span> <span class="ne">UnboundLocalError</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">newvalue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ConfigParser</span><span class="o">.</span><span class="n">OPERATORS</span><span class="p">[</span><span class="n">item</span><span class="p">](</span><span class="nb">int</span><span class="p">(</span><span class="n">value1</span><span class="p">[</span><span class="n">number</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">value2</span><span class="p">[</span><span class="n">number</span><span class="p">])))</span>
+
+                    <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">newvalue</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li>
+          <li><a href="../conf.html" >simulation.conf</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Marcin Kaciuba.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>

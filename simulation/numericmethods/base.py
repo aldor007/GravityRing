@@ -25,8 +25,11 @@ class NumericMethod(object):
             force, radius = planet2.interactions(planet1)
             dx = planet2.x - planet1.x
             dy = planet2.y - planet1.y
-            ax += force/planet1.mass*(dx)/radius
-            ay += force/planet1.mass*(dy)/radius
+            try:
+                ax += force/planet1.mass*(dx)/radius if radius > 0 else 0
+                ay += force/planet1.mass*(dy)/radius if radius > 0 else 0
+            except ZeroDivisionError:
+                ax, ay = 0, 0
         return (ax, ay)
 
 

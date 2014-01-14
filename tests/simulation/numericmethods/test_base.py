@@ -31,3 +31,19 @@ class NumericMethodTest(unittest.TestCase):
         result.append(10. * 100.0/math.sqrt((90.0**2.0 + 90.0**2.0))**3 *90.0 )
         self.assertEqual(ret_val[0], result[0])
         self.assertEqual(ret_val[1], result[1])
+    def test_accelaration_zerp(self):
+        system = SpaceSystem()
+        p1 = SpaceObject(pos=(10.0, 10.0))
+        p1.mass = 0
+        p1.radius_val = 100.0
+
+        p2 = SpaceObject(pos=(100.0, 100.0))
+        p2.mass = 100.0
+        p2.radius_val = 100.0
+        system.append(p1)
+        system.append(p2)
+        appsettings['gravity'] = 10.0
+        self.base_num.system = system
+        ret_val = self.base_num.acceleration(p1)
+        self.assertEqual(ret_val[0], 0)
+        self.assertEqual(ret_val[1], 0)

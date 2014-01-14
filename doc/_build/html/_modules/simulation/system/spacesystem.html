@@ -1,0 +1,474 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>simulation.system.spacesystem &mdash; GravityRing 0.1.2 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '0.1.2',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="GravityRing 0.1.2 documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" accesskey="U">Module code</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for simulation.system.spacesystem</h1><div class="highlight"><pre>
+<span class="sd">&quot;&quot;&quot;Module containing main object for simulations&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">kivy</span>
+<span class="n">kivy</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="s">&#39;1.0.9&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">kivy.graphics</span> <span class="kn">import</span> <span class="n">Color</span><span class="p">,</span> <span class="n">Ellipse</span><span class="p">,</span> <span class="n">Line</span>
+<span class="kn">from</span> <span class="nn">kivy.uix.label</span> <span class="kn">import</span> <span class="n">Label</span>
+<span class="kn">from</span> <span class="nn">kivy.utils</span> <span class="kn">import</span> <span class="n">get_random_color</span>
+<span class="kn">from</span> <span class="nn">kivy.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">from</span> <span class="nn">simulation.numericmethods.rungekutta</span> <span class="kn">import</span> <span class="n">RungeKutta</span>
+<span class="kn">from</span> <span class="nn">simulation.numericmethods.euler</span> <span class="kn">import</span> <span class="n">Euler</span>
+<span class="kn">from</span> <span class="nn">simulation.numericmethods.verletvelocity</span> <span class="kn">import</span> <span class="n">VerletVelocity</span>
+<span class="kn">from</span> <span class="nn">simulation.conf.settings</span> <span class="kn">import</span> <span class="n">appsettings</span>
+<span class="kn">from</span> <span class="nn">utils</span> <span class="kn">import</span> <span class="n">ListBase</span>
+
+
+
+<div class="viewcode-block" id="Force"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.Force">[docs]</a><span class="k">class</span> <span class="nc">Force</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing force value&quot;&quot;&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spaceobject2</span><span class="p">,</span> <span class="n">spaceobject1</span><span class="p">,</span> <span class="n">distancesqured</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Init method for force class</span>
+
+<span class="sd">        :param spaceobject2: object in what direction force is facing.</span>
+<span class="sd">        :param spaceobject1: start object for force.</span>
+<span class="sd">        :param distancesqured: sqrt from distance^2.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vector</span> <span class="o">=</span> <span class="p">(</span><span class="n">spaceobject2</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">spaceobject1</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">spaceobject2</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">spaceobject1</span><span class="o">.</span><span class="n">y</span> <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startpos</span> <span class="o">=</span> <span class="p">[</span><span class="n">spaceobject1</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span><span class="n">spaceobject1</span><span class="o">.</span><span class="n">radius</span><span class="o">/</span><span class="mf">4.</span><span class="p">,</span> <span class="n">spaceobject1</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">spaceobject1</span><span class="o">.</span><span class="n">radius</span><span class="o">/</span><span class="mi">4</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpos</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">spaceobject1</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">spaceobject2</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="n">distancesqured</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;gravity&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">endpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">vector</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;gravity&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">0.1</span> <span class="o">*</span>  <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Force.calculate"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.Force.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mass1</span><span class="p">,</span> <span class="n">mass2</span><span class="p">,</span> <span class="n">distancesqured</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calculate value of force on object.</span>
+<span class="sd">        If distance smaller then 1e-4 returns 0</span>
+
+<span class="sd">        :param mass1: mass first object.</span>
+<span class="sd">        :param mass2: mass second object.</span>
+<span class="sd">        :return: value of force.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;gravity&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">mass1</span><span class="p">)</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">mass2</span><span class="p">)</span> <span class="o">/</span><span class="nb">float</span><span class="p">(</span><span class="n">distancesqured</span><span class="p">)</span> <span class="k">if</span> <span class="n">distancesqured</span><span class="o">&gt;</span><span class="mf">1e-4</span> <span class="k">else</span> <span class="mf">0.0</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="Force.draw"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.Force.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shift</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method draw force on canvas</span>
+
+<span class="sd">        :param shift: shift ftom start point(0,0),</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Color</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">Line</span><span class="p">(</span><span class="n">points</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">startpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">startpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">shift</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">width</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c"># Line(points=(420,220 ,880, 400), width=1</span>
+            <span class="c"># Triangle()</span></div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot; start </span><span class="si">%s</span><span class="s"> endpod </span><span class="si">%s</span><span class="s"> value </span><span class="si">%s</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">startpos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">endpos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpaceObjectBase"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase">[docs]</a><span class="k">class</span> <span class="nc">SpaceObjectBase</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Abstraction for SpaceObject&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># super(SpaceObjectBase, self).__init__()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass_val</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius_val</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return position list&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span>
+
+    <span class="nd">@position.setter</span>
+<div class="viewcode-block" id="SpaceObjectBase.position"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase.position">[docs]</a>    <span class="k">def</span> <span class="nf">position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; set  position list&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">tuple</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">value</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># pylint: disable=C0103</span>
+        <span class="sd">&quot;&quot;&quot;Return x of postion&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@x.setter</span>
+<div class="viewcode-block" id="SpaceObjectBase.x"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase.x">[docs]</a>    <span class="k">def</span> <span class="nf">x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="c"># pylint: disable=C0103</span>
+        <span class="sd">&quot;&quot;&quot;set x of postion&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return object mass&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass_val</span>
+
+    <span class="nd">@mass.setter</span>
+<div class="viewcode-block" id="SpaceObjectBase.mass"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase.mass">[docs]</a>    <span class="k">def</span> <span class="nf">mass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set mass and calcutate for it radius&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass_val</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius_val</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">/</span><span class="p">(</span><span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;density&#39;</span><span class="p">]</span> <span class="o">*</span><span class="mf">4.</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">radius</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return radius of object&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius_val</span>
+
+    <span class="nd">@radius.setter</span>
+<div class="viewcode-block" id="SpaceObjectBase.radius"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase.radius">[docs]</a>    <span class="k">def</span> <span class="nf">radius</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set radius and calcuate mass for radius&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius_val</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass_val</span> <span class="o">=</span> <span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;density&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">4.</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radius_val</span><span class="o">**</span><span class="mf">3.</span><span class="p">)</span><span class="o">/</span><span class="mf">3.</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return y of pos&quot;&quot;&quot;</span>
+        <span class="c"># pylint: disable=C0103</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@y.setter</span>
+<div class="viewcode-block" id="SpaceObjectBase.y"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase.y">[docs]</a>    <span class="k">def</span> <span class="nf">y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set y of pos&quot;&quot;&quot;</span>
+        <span class="c"># pylint: disable=C0103</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">velocity_x</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return velocity_x&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">velocity_y</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;return velocity_y&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@velocity_x.setter</span>
+<div class="viewcode-block" id="SpaceObjectBase.velocity_x"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase.velocity_x">[docs]</a>    <span class="k">def</span> <span class="nf">velocity_x</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set velocity_x&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="nd">@velocity_y.setter</span>
+<div class="viewcode-block" id="SpaceObjectBase.velocity_y"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObjectBase.velocity_y">[docs]</a>    <span class="k">def</span> <span class="nf">velocity_y</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;set velocity_y&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;Space postion=</span><span class="si">%s</span><span class="s"> velocity=</span><span class="si">%s</span><span class="s"> mass=</span><span class="si">%s</span><span class="s">  radius=</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
+
+
+
+</div>
+<div class="viewcode-block" id="SpaceObject"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject">[docs]</a><span class="k">class</span> <span class="nc">SpaceObject</span><span class="p">(</span><span class="n">SpaceObjectBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class represetn space object&quot;&quot;&quot;</span>
+
+    <span class="n">objectcount</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">mergedforces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SpaceObject</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spaceid</span> <span class="o">=</span> <span class="n">SpaceObject</span><span class="o">.</span><span class="n">objectcount</span>
+        <span class="n">SpaceObject</span><span class="o">.</span><span class="n">objectcount</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forces</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">radius</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="n">get_random_color</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;density&#39;</span><span class="p">]</span><span class="o">*</span><span class="mf">4.</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="o">**</span><span class="mf">3.</span><span class="p">)</span><span class="o">/</span><span class="mf">3.</span>
+        <span class="c"># self.mass *= 10</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">merged</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.</span><span class="p">,</span> <span class="mf">0.</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">&#39;spaceobject_&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spaceid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_label</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="n">dpcpy</span> <span class="o">=</span> <span class="n">SpaceObject</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">SpaceObject</span><span class="o">.</span><span class="n">objectcount</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">spaceid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaceid</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">)</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">forces</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">)</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">mass</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">velocity</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">velocity</span><span class="p">)</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">merged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merged</span>
+        <span class="n">dpcpy</span><span class="o">.</span><span class="n">show_label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_label</span>
+        <span class="n">memo</span><span class="p">[</span><span class="nb">id</span><span class="p">(</span><span class="n">dpcpy</span><span class="p">)]</span> <span class="o">=</span> <span class="n">dpcpy</span>
+        <span class="k">return</span> <span class="n">dpcpy</span>
+
+<div class="viewcode-block" id="SpaceObject.interactions"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.interactions">[docs]</a>    <span class="k">def</span> <span class="nf">interactions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Returns force, distance betwen two objects</span>
+
+<span class="sd">        :param other: other spaceobject.</span>
+<span class="sd">        :returns: value of force, distance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">distancex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">distancey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">distancesqured</span> <span class="o">=</span> <span class="n">distancex</span><span class="o">*</span><span class="n">distancex</span> <span class="o">+</span> <span class="n">distancey</span><span class="o">*</span><span class="n">distancey</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">distancesqured</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">calcutateforces</span><span class="p">(</span><span class="n">distancesqured</span><span class="p">,</span> <span class="n">other</span><span class="p">),</span> <span class="n">distance</span>
+</div>
+<div class="viewcode-block" id="SpaceObject.cleanup"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for removing forces from merged spaceobjects&quot;&quot;&quot;</span>
+        <span class="n">forcescopy</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">SpaceObject</span><span class="o">.</span><span class="n">mergedforces</span><span class="p">:</span>
+            <span class="k">print</span> <span class="s">&quot;merged&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span>
+            <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">forcescopy</span><span class="p">[</span><span class="n">item</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forces</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">forcescopy</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpaceObject.return_label"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.return_label">[docs]</a>    <span class="k">def</span> <span class="nf">return_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method genereting label containing useful information</span>
+<span class="sd">        about postion, velocity, radius, mass&quot;&quot;&quot;</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">tmp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span>
+        <span class="n">tmp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span>
+        <span class="k">return</span> <span class="n">Label</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">tmp</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="s">&quot;Name </span><span class="si">%s</span><span class="se">\n</span><span class="s"> postion=[</span><span class="si">%0.2f</span><span class="s">,</span><span class="si">%0.2f</span><span class="s">] velocity=[</span><span class="si">%0.2f</span><span class="s">,</span><span class="si">%0.2f</span><span class="s">] radius=</span><span class="si">%0.2f</span><span class="s"> mass=</span><span class="si">%0.2f</span><span class="s">&quot;</span> \
+                        <span class="o">%</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">velocity_y</span><span class="p">,</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="SpaceObject.draw"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shift</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">zoom</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method draw SpaceObject on canvas&quot;&quot;&quot;</span>
+        <span class="n">width</span> <span class="o">=</span> <span class="n">width</span> <span class="o">/</span> <span class="mf">2.</span>
+        <span class="n">height</span> <span class="o">=</span> <span class="n">height</span> <span class="o">/</span> <span class="mf">2.</span>
+        <span class="c">#TODO: work on zoom</span>
+        <span class="c"># tmpposx = width + self.x</span>
+        <span class="c"># tmpposy = height +self.y</span>
+        <span class="n">Color</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">Ellipse</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="n">shift</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+</span> <span class="n">shift</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">zoom</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">,</span> <span class="n">zoom</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">force</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">force</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">shift</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpaceObject.merge"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.merge">[docs]</a>    <span class="k">def</span> <span class="nf">merge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Method for merging space objece</span>
+<span class="sd">        when they collide&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mass_val</span> <span class="o">+=</span> <span class="n">other</span><span class="o">.</span><span class="n">mass</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radius_val</span> <span class="o">=</span> <span class="p">(</span><span class="mf">3.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">mass</span><span class="o">/</span><span class="p">(</span><span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;density&#39;</span><span class="p">]</span> <span class="o">*</span><span class="mf">4.</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">))</span><span class="o">**</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mf">3.</span><span class="p">)</span>
+        <span class="n">other</span><span class="o">.</span><span class="n">merged</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">[</span><span class="n">other</span><span class="o">.</span><span class="n">spaceid</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">SpaceObject</span><span class="o">.</span><span class="n">mergedforces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">spaceid</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpaceObject.calcutateforces"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.calcutateforces">[docs]</a>    <span class="k">def</span> <span class="nf">calcutateforces</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">distancesqured</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Merhod calculate force affected by others and</span>
+<span class="sd">        store it in list.</span>
+
+<span class="sd">        :param distancesqured: distancesqured between objects.</span>
+<span class="sd">        :param other: other SpaceObject.</span>
+<span class="sd">        :return: value of force&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">[</span><span class="n">other</span><span class="o">.</span><span class="n">spaceid</span><span class="p">]</span> <span class="o">=</span> <span class="n">Force</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="p">,</span> <span class="n">distancesqured</span><span class="p">)</span>
+        <span class="n">other</span><span class="o">.</span><span class="n">forces</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spaceid</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">[</span><span class="n">other</span><span class="o">.</span><span class="n">spaceid</span><span class="p">]</span>
+        <span class="c"># other.forces[self.spaceid].value *= -1.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">forces</span><span class="p">[</span><span class="n">other</span><span class="o">.</span><span class="n">spaceid</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+</div>
+<div class="viewcode-block" id="SpaceObject.collision"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.collision">[docs]</a>    <span class="k">def</span> <span class="nf">collision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for detect collision between object</span>
+
+<span class="sd">        :param other: other SpacObjec.</span>
+<span class="sd">        :returns: True if collision  else  False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">distancex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">distancey</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">distancex</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">distancey</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">distance</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">radius</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">reprstr</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">SpaceObject</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__str__</span><span class="p">()</span>
+        <span class="n">reprstr</span> <span class="o">+=</span> <span class="s">&#39; spaceid = </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">spaceid</span>
+        <span class="k">return</span> <span class="n">reprstr</span>
+    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span> <span class="ow">is</span> <span class="n">other</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">other</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">SpaceObject</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">x</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">y</span> <span class="ow">and</span>  <span class="bp">self</span><span class="o">.</span><span class="n">radius</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">radius</span>
+
+<div class="viewcode-block" id="SpaceObject.decrease"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceObject.decrease">[docs]</a>    <span class="k">def</span> <span class="nf">decrease</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method decrease count of object&quot;&quot;&quot;</span>
+        <span class="n">Logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Odejmowanie&quot;</span><span class="p">)</span>
+        <span class="n">SpaceObject</span><span class="o">.</span><span class="n">objectcount</span> <span class="o">=</span> <span class="n">SpaceObject</span><span class="o">.</span><span class="n">objectcount</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">SpaceObject</span><span class="o">.</span><span class="n">objectcount</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">SpaceObject</span><span class="o">.</span><span class="n">objectcount</span> <span class="o">=</span> <span class="mi">0</span>
+</div></div>
+<div class="viewcode-block" id="SpaceSystem"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceSystem">[docs]</a><span class="k">class</span> <span class="nc">SpaceSystem</span><span class="p">(</span><span class="n">ListBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class containing list of spaceobjects&quot;&quot;&quot;</span>
+    <span class="c"># __metaclass__ = Singleton</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Init method for SpaceSystem class</span>
+<span class="sd">        it define 3 numericmethods&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matmethods</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&#39;RungeKutta&#39;</span><span class="p">:</span> <span class="n">RungeKutta</span><span class="p">(),</span> <span class="s">&#39;VerletVelocity&#39;</span><span class="p">:</span> <span class="n">VerletVelocity</span><span class="p">(),</span> <span class="s">&#39;Euler&#39;</span><span class="p">:</span> <span class="n">Euler</span><span class="p">()}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Basic property getter&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span>
+
+    <span class="nd">@data.setter</span>
+<div class="viewcode-block" id="SpaceSystem.data"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceSystem.data">[docs]</a>    <span class="k">def</span> <span class="nf">data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Basic property setter&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="SpaceSystem.update"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceSystem.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method runned periodicly. It refres system list.</span>
+<span class="sd">        Check collisions between object and whether it is to far</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">items_merged</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">item2</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="n">item2</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="n">item2</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item2</span><span class="o">.</span><span class="n">spaceid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">items_merged</span> <span class="ow">and</span> <span class="n">item</span><span class="o">.</span><span class="n">spaceid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">items_merged</span><span class="p">:</span>
+                        <span class="n">Logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s">&quot;Merge&quot;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">mass</span> <span class="o">&gt;</span> <span class="n">item2</span><span class="o">.</span><span class="n">mass</span><span class="p">:</span>
+                            <span class="n">item</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">item2</span><span class="p">)</span>
+                            <span class="n">items_merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item2</span><span class="o">.</span><span class="n">spaceid</span><span class="p">)</span>
+                            <span class="n">tmp</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item2</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">item2</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                            <span class="n">items_merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">spaceid</span><span class="p">)</span>
+                            <span class="n">tmp</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3000</span> <span class="ow">or</span> <span class="n">math</span><span class="o">.</span><span class="n">fabs</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3000</span><span class="p">:</span>
+                            <span class="n">items_merged</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">spaceid</span><span class="p">)</span>
+                            <span class="n">tmp</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                        <span class="n">item</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">tmp</span>
+        <span class="n">SpaceObject</span><span class="o">.</span><span class="n">mergedforces</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">matmethod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matmethods</span><span class="p">[</span><span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;numericmethod&#39;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">matmethod</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">matmethods</span><span class="p">[</span><span class="s">&#39;RungeKutta&#39;</span><span class="p">]</span>
+            <span class="n">Logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s">&quot;Defualt method </span><span class="si">%s</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;numericmethod&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="n">matmethod</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">,</span> <span class="n">appsettings</span><span class="p">[</span><span class="s">&#39;dt_in_numericmethod&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</div>
+<div class="viewcode-block" id="SpaceSystem.points_in_system"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceSystem.points_in_system">[docs]</a>    <span class="k">def</span> <span class="nf">points_in_system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">posx</span><span class="p">,</span> <span class="n">posy</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method check if point is in system</span>
+
+<span class="sd">        :param posx: x point value.</span>
+<span class="sd">        :param posy: y point value.</span>
+<span class="sd">        :returns: True if point is in system else False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">SpaceObjectBase</span><span class="p">()</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">posx</span> <span class="c"># pylint: disable=C0103</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">posy</span> <span class="c"># pylint: disable=C0103</span>
+        <span class="n">tmp</span><span class="o">.</span><span class="n">radius</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">collision</span><span class="p">(</span><span class="n">tmp</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="SpaceSystem.clear"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceSystem.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method clear system list&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="SpaceSystem.append"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceSystem.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spaceobject</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for adding spaceobject to list&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">spaceobject</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="SpaceSystem.get_system"><a class="viewcode-back" href="../../../simulation.system.html#simulation.system.spacesystem.SpaceSystem.get_system">[docs]</a>    <span class="k">def</span> <span class="nf">get_system</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for getting system list&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span>
+</div>
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="o">.</span><span class="n">__iter__</span><span class="p">()</span>
+</pre></div></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="../../../index.html">GravityRing 0.1.2 documentation</a> &raquo;</li>
+          <li><a href="../../index.html" >Module code</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Marcin Kaciuba.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.
+    </div>
+  </body>
+</html>
