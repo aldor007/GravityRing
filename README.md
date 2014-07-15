@@ -1,5 +1,7 @@
-Aby uruchomic aplikacje nalezy miec:
-python 2.7.3
-kivy >= 1.7.2
-pyyaml
+# Install and run
+```bash
+./deps.sh
+./run.sh
 
+# Screenshot
+![Gravity ring](https://raw.githubusercontent.com/Aldor007/GravityRing/master/screenshot.png "Working")
