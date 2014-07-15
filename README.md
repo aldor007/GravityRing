@@ -1,5 +1,5 @@
 # GravityRing
-Simply gravity simulation. It value of  velocity and position  by  using methods
+Simply gravity simulation. It calculate value of  velocity and position  by  using methods
 * Runge Kutta 4 
 * Euler
 * Verlet Velocity
